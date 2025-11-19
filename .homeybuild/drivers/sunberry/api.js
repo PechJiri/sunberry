@@ -1,7 +1,7 @@
 'use strict';
 
 const Logger = require('../../lib/Logger');
-const axios = require('axios');
+
 const DataValidator = require('../../lib/DataValidator');
 const CookieManager = require('../../lib/CookieManager');
 
@@ -144,15 +144,14 @@ class SunberryAPI {
                     'Cookie': `session=${cookie}`
                 };
  
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
                 const config = {
                     method,
-                    url,
                     headers,
-                    timeout: 10000,
-                    maxRedirects: 0,
-                    validateStatus: function(status) {
-                        return status === 200 || status === 302;
-                    }
+                    signal: controller.signal,
+                    redirect: 'manual'
                 };
  
                 if (payload) {
@@ -160,20 +159,28 @@ class SunberryAPI {
                     Object.entries(payload).forEach(([key, value]) => {
                         formData.append(key, value);
                     });
-                    config.data = formData.toString();
+                    config.body = formData;
                 }
  
-                const response = await axios(config);
+                let response;
+                try {
+                    response = await fetch(url, config);
+                } finally {
+                    clearTimeout(timeoutId);
+                }
                 
                 if (response.status === 200 || response.status === 302) {
-                    return { success: true, data: response.data };
+                    const data = await response.text();
+                    return { success: true, data };
                 }
                 throw new Error(`HTTP ${response.status}`);
  
             } catch (error) {
                 this.logger.error(`${operationType.description} - pokus ${attempt + 1} selhal:`, error);
                 
-                if (error.response?.status === 500) {
+                // Check for 500 status in the error message or response if available (fetch doesn't throw on 500, so we check logic above)
+                // But here we are in catch block, so it's either network error or our thrown error
+                if (error.message.includes('HTTP 500')) {
                     this.cookieManager.clearCookie();
                 }
  
