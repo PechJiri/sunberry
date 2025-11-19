@@ -1,7 +1,6 @@
 'use strict';
 
 const Logger = require('../../lib/Logger');
-
 const DataValidator = require('../../lib/DataValidator');
 const CookieManager = require('../../lib/CookieManager');
 
@@ -54,7 +53,7 @@ class SunberryAPI {
         this.cookieManager = new CookieManager(null);
         this.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'Cache-Control': 'max-age=0', 
+            'Cache-Control': 'max-age=0',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0',
@@ -78,15 +77,15 @@ class SunberryAPI {
             } else {
                 this.logger = homey.appLogger;
             }
-            
+
             this.cookieManager.logger = this.logger;
             this.initialized = true;
             this.logger.info('SunberryAPI byla inicializována');
-            
+
             // Debug log pro kontrolu
             this.logger.debug('Headers:', this.headers);
             this.logger.debug('BaseUrl:', this.baseUrl);
-            
+
         } catch (error) {
             throw new Error(`Failed to initialize logger: ${error.message}`);
         }
@@ -109,15 +108,26 @@ class SunberryAPI {
     async setBaseUrl(ipAddress) {
         this.ensureLogger();
         try {
+            let resolvedIp = ipAddress;
+
+            // Pokud to není IP adresa, zkusíme ji vyresolvovat (pro sunberry.local apod.)
             if (!DataValidator.validateIPAddress(ipAddress)) {
-                throw new Error('Invalid IP address provided');
+                this.logger.debug(`Resolving hostname: ${ipAddress}`);
+                try {
+                    const dns = require('dns').promises;
+                    const result = await dns.lookup(ipAddress, { family: 4 });
+                    resolvedIp = result.address;
+                    this.logger.info(`Hostname ${ipAddress} resolved to ${resolvedIp}`);
+                } catch (dnsError) {
+                    this.logger.warn(`Failed to resolve hostname ${ipAddress}, using as is. Error: ${dnsError.message}`);
+                }
             }
-            
-            this.baseUrl = `http://${ipAddress}`;
+
+            this.baseUrl = `http://${resolvedIp}`;
             this.headers.Origin = this.baseUrl;
             this.headers.Referer = `${this.baseUrl}/battery_management/settings`;
 
-            this.logger.info('API baseUrl nastavena:', { baseUrl: this.baseUrl });
+            this.logger.info('API baseUrl nastavena:', { baseUrl: this.baseUrl, original: ipAddress });
             this.logger.debug('Aktualizované headers:', this.headers);
         } catch (error) {
             this.logger.error('Chyba při nastavení baseUrl:', error);
@@ -133,7 +143,7 @@ class SunberryAPI {
         const url = `${this.baseUrl}${endpoint}`;
         const maxRetries = 3;
         let attempt = 0;
- 
+
         while (attempt < maxRetries) {
             try {
                 const cookie = await this.cookieManager.getCookie(this.baseUrl);
@@ -141,9 +151,10 @@ class SunberryAPI {
                     ...this.headers,
                     'Origin': this.baseUrl,
                     'Referer': `${this.baseUrl}/battery_management/settings`,
-                    'Cookie': `session=${cookie}`
+                    'Cookie': `session=${cookie}`,
+                    'Connection': 'close'
                 };
- 
+
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000);
 
@@ -153,7 +164,7 @@ class SunberryAPI {
                     signal: controller.signal,
                     redirect: 'manual'
                 };
- 
+
                 if (payload) {
                     const formData = new URLSearchParams();
                     Object.entries(payload).forEach(([key, value]) => {
@@ -161,33 +172,42 @@ class SunberryAPI {
                     });
                     config.body = formData;
                 }
- 
+
+                const startTime = Date.now();
                 let response;
                 try {
                     response = await fetch(url, config);
                 } finally {
                     clearTimeout(timeoutId);
                 }
-                
+
+                const duration = Date.now() - startTime;
+                this.logger.debug(`${operationType.description} - trvání: ${duration}ms, status: ${response.status}`);
+
                 if (response.status === 200 || response.status === 302) {
                     const data = await response.text();
                     return { success: true, data };
                 }
                 throw new Error(`HTTP ${response.status}`);
- 
+
             } catch (error) {
-                this.logger.error(`${operationType.description} - pokus ${attempt + 1} selhal:`, error);
-                
-                // Check for 500 status in the error message or response if available (fetch doesn't throw on 500, so we check logic above)
-                // But here we are in catch block, so it's either network error or our thrown error
+                const isLastAttempt = attempt === maxRetries - 1;
+                const logMethod = isLastAttempt ? 'error' : 'debug';
+
+                this.logger[logMethod](`${operationType.description} - pokus ${attempt + 1} selhal:`, {
+                    message: error.message,
+                    cause: error.cause,
+                    stack: error.stack
+                });
+
                 if (error.message.includes('HTTP 500')) {
                     this.cookieManager.clearCookie();
                 }
- 
-                if (attempt === maxRetries - 1) {
+
+                if (isLastAttempt) {
                     return { success: false, error: error.message };
                 }
- 
+
                 await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
                 attempt++;
             }
@@ -210,25 +230,25 @@ class SunberryAPI {
      */
     async getGridValues() {
         this.ensureLogger();
-        
+
         try {
             const result = await this.apiRequest({
                 endpoint: API_ENDPOINTS.GRID_VALUES,
                 operationType: OPERATION_TYPES.FETCH_GRID
             });
-    
+
             if (!result.success) {
                 this.logger.error('Získání hodnot sítě selhalo');
                 return DEFAULT_VALUES.GRID;
             }
-    
+
             const values = this.parseGridHtml(result.data);
-            
+
             if (!DataValidator.validateGridValues(values)) {
                 this.logger.error('Získané hodnoty sítě nejsou validní:', values);
                 return DEFAULT_VALUES.GRID;
             }
-    
+
             return values;
         } catch (error) {
             this.logger.error('Chyba při získávání hodnot sítě:', error);
@@ -241,25 +261,25 @@ class SunberryAPI {
      */
     async getBatteryValues() {
         this.ensureLogger();
-        
+
         try {
             const result = await this.apiRequest({
                 endpoint: API_ENDPOINTS.BATTERY_VALUES,
                 operationType: OPERATION_TYPES.FETCH_BATTERY
             });
-    
+
             if (!result.success) {
                 this.logger.error('Získání hodnot baterie selhalo');
                 return DEFAULT_VALUES.BATTERY;
             }
-    
+
             const values = this.parseBatteryHtml(result.data);
-            
+
             if (!DataValidator.validateBatteryValues(values)) {
                 this.logger.error('Získané hodnoty baterie nejsou validní:', values);
                 return DEFAULT_VALUES.BATTERY;
             }
-    
+
             return values;
         } catch (error) {
             this.logger.error('Chyba při získávání hodnot baterie:', error);
@@ -285,7 +305,7 @@ class SunberryAPI {
             Sun_0: 'Sun_0',
             submit: ''
         };
- 
+
         return await this.apiRequest({
             method: 'POST',
             endpoint: API_ENDPOINTS.BATTERY_MANAGEMENT,
@@ -315,7 +335,7 @@ class SunberryAPI {
             Sun_0: 'Sun_0',
             submit: ''
         };
- 
+
         return await this.apiRequest({
             method: 'POST',
             endpoint: API_ENDPOINTS.BATTERY_MANAGEMENT,
@@ -334,7 +354,7 @@ class SunberryAPI {
             bat_chg_limit_power_0: '0',
             block_bat_dis_0: 'on',
             Mon_0: 'Mon_0',
-            Tue_0: 'Tue_0', 
+            Tue_0: 'Tue_0',
             Wed_0: 'Wed_0',
             Thu_0: 'Thu_0',
             Fri_0: 'Fri_0',
@@ -342,14 +362,14 @@ class SunberryAPI {
             Sun_0: 'Sun_0',
             submit: ''
         };
-     
+
         return await this.apiRequest({
             method: 'POST',
             endpoint: API_ENDPOINTS.BATTERY_MANAGEMENT,
             payload,
             operationType: OPERATION_TYPES.BLOCK_DISCHARGE
         });
-     }
+    }
 
     /**
      * Povolení vybíjení baterie
@@ -362,21 +382,21 @@ class SunberryAPI {
             bat_chg_limit_power_0: '0',
             Mon_0: 'Mon_0',
             Tue_0: 'Tue_0',
-            Wed_0: 'Wed_0', 
+            Wed_0: 'Wed_0',
             Thu_0: 'Thu_0',
             Fri_0: 'Fri_0',
             Sat_0: 'Sat_0',
             Sun_0: 'Sun_0',
             submit: ''
         };
-     
+
         return await this.apiRequest({
             method: 'POST',
             endpoint: API_ENDPOINTS.BATTERY_MANAGEMENT,
             payload,
             operationType: OPERATION_TYPES.ENABLE_DISCHARGE
         });
-     }
+    }
 
     /**
      * Parsování HTML s hodnotami sítě
@@ -389,19 +409,19 @@ class SunberryAPI {
             if (value.includes('<')) return 0;
             return parseInt(value, 10);
         };
-    
+
         const L1Match = gridHtml.match(/L1:\s*<\/label>\s*<label[^>]*>\s*([^W]*)\s*W/);
         const L2Match = gridHtml.match(/L2:\s*<\/label>\s*<label[^>]*>\s*([^W]*)\s*W/);
         const L3Match = gridHtml.match(/L3:\s*<\/label>\s*<label[^>]*>\s*([^W]*)\s*W/);
         const totalMatch = gridHtml.match(/Celkem:\s*<\/label>\s*<label[^>]*>\s*([^W]*)\s*W/);
-    
+
         this.logger.debug('Parsované hodnoty sítě:', {
             L1: L1Match ? L1Match[1] : null,
             L2: L2Match ? L2Match[1] : null,
             L3: L3Match ? L3Match[1] : null,
             total: totalMatch ? totalMatch[1] : null
         });
-    
+
         return {
             L1: parseValue(L1Match),
             L2: parseValue(L2Match),
@@ -418,17 +438,17 @@ class SunberryAPI {
         const kWhMatch = batteryHtml.match(/<label[^>]*>\s*(\d+)\s*Wh<\/label>/);
         const percentMatch = batteryHtml.match(/<label[^>]*>\s*(\d+)\s*%\s*<\/label>/);
         const maxChargingMatch = batteryHtml.match(/Max nabíjení:[^>]*>[\s\S]*?<label[^>]*>\s*(\d+)\s*W<\/label>/);
-    
+
         this.logger.debug('Parsování baterie - matches:', {
             kWh: kWhMatch ? kWhMatch[1] : null,
             percent: percentMatch ? percentMatch[1] : null,
             maxCharging: maxChargingMatch ? maxChargingMatch[1] : null
         });
-    
+
         const actual_kWh = kWhMatch ? parseInt(kWhMatch[1], 10) / 1000 : null;
         const actual_percent = percentMatch ? parseInt(percentMatch[1], 10) : null;
         const max_charging_power = maxChargingMatch ? parseInt(maxChargingMatch[1], 10) : null;
-    
+
         return {
             actual_kWh: actual_kWh || 0,
             actual_percent: actual_percent || 0,
