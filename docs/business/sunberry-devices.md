@@ -58,6 +58,21 @@ Force charging behavior:
 - Flow action charging limits and the capability button setting are clamped to the current `battery_max_charging_power`.
 - Values below the minimum valid charging limit are rejected.
 - `Max vybijeni` is parsed from the portal when present, but it is not exposed as an active capability because Sunberry currently supports controlling charging, not forced discharging.
+- Force charging is controlled through the Sunberry battery-management request already used by the app. It is represented by the custom `force_charging` capability and existing Flow cards, not by Homey's `target_power` capability.
+
+Block discharge behavior:
+
+- Battery discharge blocking is controlled through the Sunberry battery-management request already used by the app.
+- When block discharge is enabled, the Sunberry portal can show `Klidovy rezim`, which is normalized to `battery_charging_state = idle` and `measure_power = 0`.
+- Idle cannot be commanded as a general power setpoint. In practice the battery becomes idle when Sunberry reaches its minimum discharge limit or when discharge is explicitly blocked.
+
+Homey `target_power` decision:
+
+- `target_power` is intentionally not implemented for `sunberry_battery`.
+- Homey defines positive `target_power` as charging, negative `target_power` as discharging, and `0 W` as idle.
+- Sunberry can force charging and can block or allow discharge, but it cannot set an exact discharge power and cannot generally set an idle power target.
+- Adding `target_power` would advertise a bidirectional power-control contract the physical device cannot fulfill. This would create misleading Homey Energy behavior and failed "Set target power" actions for negative or zero targets.
+- If Sunberry later exposes exact charge and discharge power setpoints, `target_power` and probably `target_power_mode` should be reconsidered. At that point the minimum Homey compatibility would need to be raised to at least the Homey version that supports those capabilities.
 
 ## Solar Device
 

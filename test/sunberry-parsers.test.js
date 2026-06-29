@@ -115,6 +115,15 @@ test('parseBatteryValues does not infer battery state from max power labels', ()
   assert.equal(parseBatteryValues(html).state, null);
 });
 
+test('parseBatteryValues maps portal idle mode label to idle battery state', () => {
+  const html = `
+    <label>Klidovy rezim </label>
+    <label>Kapacita baterie:</label><label>4397 Wh</label><label>21 %</label>
+    <label>Vykon baterie:</label><label>0 W</label><label>0 %</label>`;
+
+  assert.equal(parseBatteryValues(html).state, 'idle');
+});
+
 test('parsePvValues extracts PV string powers and percentages', () => {
   const html = `
     <label>Pv1:</label><label>0  W</label><label>0  %</label>
