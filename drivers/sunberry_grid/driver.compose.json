@@ -5,10 +5,14 @@
   },
   "class": "sensor",
   "energy": {
-    "cumulative": true
+    "cumulative": true,
+    "cumulativeImportedCapability": "meter_power.imported",
+    "cumulativeExportedCapability": "meter_power.exported"
   },
   "capabilities": [
     "measure_power",
+    "meter_power.imported",
+    "meter_power.exported",
     "measure_L1",
     "measure_L2",
     "measure_L3",
@@ -31,25 +35,7 @@
   },
   "pair": [
     {
-      "id": "pair",
-      "navigation": {
-        "next": "list_devices"
-      }
-    },
-    {
-      "id": "list_devices",
-      "template": "list_devices",
-      "navigation": {
-        "next": "add_my_devices",
-        "prev": "pair"
-      },
-      "options": {
-        "singular": true
-      }
-    },
-    {
-      "id": "add_my_devices",
-      "template": "add_devices"
+      "id": "pair"
     }
   ]
 }

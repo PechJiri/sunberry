@@ -6,7 +6,7 @@
       "en": "Polling interval in seconds (default 10s, minimum 5s)"
     },
     "hint": {
-      "en": "Set the interval for data updates from the Sunberry."
+      "en": "Set the interval for data updates from the Sunberry. Grid import/export kWh is estimated by integrating signed total W between successful polls; values shown as <30 W count as 0 W."
     },
     "value": 10,
     "min": 5

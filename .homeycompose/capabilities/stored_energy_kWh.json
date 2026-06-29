@@ -1,15 +1,16 @@
 {
   "type": "number",
   "title": {
-    "en": "Maximum Battery Discharging Power"
+    "en": "Stored Energy"
   },
   "getable": true,
   "setable": false,
   "insights": true,
   "uiComponent": "sensor",
-  "icon": "/assets/images/battery_charge.svg",
+  "icon": "/assets/images/battery.svg",
   "units": {
-    "en": "W"
+    "en": "kWh"
   },
-  "decimals": 0
+  "decimals": 2,
+  "min": 0
 }

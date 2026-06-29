@@ -195,9 +195,9 @@
 
             const result = await Homey.emit("check", { ip_address: ip });
             
-            if (result?.success) {
-                await Homey.alert("Connection successful!");
-                await Homey.nextView();
+            if (result?.success && result?.device) {
+                await Homey.createDevice(result.device);
+                await Homey.done();
             } else {
                 throw new Error(result?.error || "Unknown error");
             }

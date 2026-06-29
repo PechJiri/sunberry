@@ -22,10 +22,9 @@ test('normalizeBatteryMeasurements makes charging power positive', () => {
 
   assert.equal(result.measure_power, 1324);
   assert.equal(result.measure_battery, 21);
-  assert.equal(result.measure_battery_kWh, 4.397);
+  assert.equal(result.stored_energy_kWh, 4.397);
   assert.equal(result.remaining_kWh_to_full, 16.54);
   assert.equal(result.battery_max_charging_power, 10889);
-  assert.equal(result.battery_max_discharging_power, 10889);
   assert.equal(result.measure_temperature, 42);
 });
 

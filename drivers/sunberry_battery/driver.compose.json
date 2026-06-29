@@ -10,10 +10,9 @@
   "capabilities": [
     "measure_power",
     "measure_battery",
-    "measure_battery_kWh",
+    "stored_energy_kWh",
     "remaining_kWh_to_full",
     "battery_max_charging_power",
-    "battery_max_discharging_power",
     "measure_temperature",
     "force_charging",
     "block_battery_discharge"
@@ -31,25 +30,7 @@
   },
   "pair": [
     {
-      "id": "pair",
-      "navigation": {
-        "next": "list_devices"
-      }
-    },
-    {
-      "id": "list_devices",
-      "template": "list_devices",
-      "navigation": {
-        "next": "add_my_devices",
-        "prev": "pair"
-      },
-      "options": {
-        "singular": true
-      }
-    },
-    {
-      "id": "add_my_devices",
-      "template": "add_devices"
+      "id": "pair"
     }
   ]
 }

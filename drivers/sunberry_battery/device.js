@@ -58,11 +58,8 @@ class SunberryBatteryDevice extends SunberryPollingDevice {
 
     async turnOnBatteryCharging(args = {}) {
         const maxChargingPower = this.getCapabilityValue('battery_max_charging_power') || null;
-        const limit = Number(args.limit || this.getSetting('force_charging_limit') || 5000);
-
-        if (!DataValidator.validateChargingLimit(limit, maxChargingPower)) {
-            throw new Error(`Invalid charging limit: ${limit}`);
-        }
+        const requestedLimit = Number(args.limit || this.getSetting('force_charging_limit') || 5000);
+        const limit = DataValidator.normalizeChargingLimit(requestedLimit, maxChargingPower);
 
         await this.controlApi.enableForceCharging(limit);
         await this.setCapabilityValue('force_charging', true);

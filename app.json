@@ -294,10 +294,9 @@
       "capabilities": [
         "measure_power",
         "measure_battery",
-        "measure_battery_kWh",
+        "stored_energy_kWh",
         "remaining_kWh_to_full",
         "battery_max_charging_power",
-        "battery_max_discharging_power",
         "measure_temperature",
         "force_charging",
         "block_battery_discharge"
@@ -315,25 +314,7 @@
       },
       "pair": [
         {
-          "id": "pair",
-          "navigation": {
-            "next": "list_devices"
-          }
-        },
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_my_devices",
-            "prev": "pair"
-          },
-          "options": {
-            "singular": true
-          }
-        },
-        {
-          "id": "add_my_devices",
-          "template": "add_devices"
+          "id": "pair"
         }
       ],
       "settings": [
@@ -393,10 +374,14 @@
       },
       "class": "sensor",
       "energy": {
-        "cumulative": true
+        "cumulative": true,
+        "cumulativeImportedCapability": "meter_power.imported",
+        "cumulativeExportedCapability": "meter_power.exported"
       },
       "capabilities": [
         "measure_power",
+        "meter_power.imported",
+        "meter_power.exported",
         "measure_L1",
         "measure_L2",
         "measure_L3",
@@ -419,25 +404,7 @@
       },
       "pair": [
         {
-          "id": "pair",
-          "navigation": {
-            "next": "list_devices"
-          }
-        },
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_my_devices",
-            "prev": "pair"
-          },
-          "options": {
-            "singular": true
-          }
-        },
-        {
-          "id": "add_my_devices",
-          "template": "add_devices"
+          "id": "pair"
         }
       ],
       "settings": [
@@ -448,7 +415,7 @@
             "en": "Polling interval in seconds (default 10s, minimum 5s)"
           },
           "hint": {
-            "en": "Set the interval for data updates from the Sunberry."
+            "en": "Set the interval for data updates from the Sunberry. Grid import/export kWh is estimated by integrating signed total W between successful polls; values shown as <30 W count as 0 W."
           },
           "value": 10,
           "min": 5
@@ -483,8 +450,12 @@
         "en": "Sunberry Solar"
       },
       "class": "solarpanel",
+      "energy": {
+        "meterPowerExportedCapability": "meter_power"
+      },
       "capabilities": [
         "measure_power",
+        "meter_power",
         "measure_pv1",
         "measure_pv2"
       ],
@@ -501,25 +472,7 @@
       },
       "pair": [
         {
-          "id": "pair",
-          "navigation": {
-            "next": "list_devices"
-          }
-        },
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_my_devices",
-            "prev": "pair"
-          },
-          "options": {
-            "singular": true
-          }
-        },
-        {
-          "id": "add_my_devices",
-          "template": "add_devices"
+          "id": "pair"
         }
       ],
       "settings": [
@@ -530,7 +483,7 @@
             "en": "Polling interval in seconds (default 10s, minimum 5s)"
           },
           "hint": {
-            "en": "Set the interval for data updates from the Sunberry."
+            "en": "Set the interval for data updates from the Sunberry. Solar kWh is estimated by integrating total PV W between successful polls; values shown below the inverter threshold count as 0 W."
           },
           "value": 10,
           "min": 5
@@ -561,21 +514,6 @@
     }
   ],
   "capabilities": {
-    "battery_max_discharging_power": {
-      "type": "number",
-      "title": {
-        "en": "Maximum Battery Discharging Power"
-      },
-      "getable": true,
-      "setable": false,
-      "insights": true,
-      "uiComponent": "sensor",
-      "icon": "/assets/images/battery_charge.svg",
-      "units": {
-        "en": "W"
-      },
-      "decimals": 0
-    },
     "battery_max_charging_power": {
       "type": "number",
       "title": {
@@ -701,22 +639,6 @@
       "decimals": 0,
       "min": 0
     },
-    "measure_battery_kWh": {
-      "type": "number",
-      "title": {
-        "en": "Actual Battery (kWh)"
-      },
-      "getable": true,
-      "setable": false,
-      "insights": true,
-      "uiComponent": "sensor",
-      "icon": "/assets/images/battery.svg",
-      "units": {
-        "en": "kWh"
-      },
-      "decimals": 2,
-      "min": 0
-    },
     "measure_battery_percent": {
       "type": "number",
       "title": {
@@ -830,6 +752,22 @@
       "type": "number",
       "title": {
         "en": "Remaining kWh to Full"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/battery.svg",
+      "units": {
+        "en": "kWh"
+      },
+      "decimals": 2,
+      "min": 0
+    },
+    "stored_energy_kWh": {
+      "type": "number",
+      "title": {
+        "en": "Stored Energy"
       },
       "getable": true,
       "setable": false,

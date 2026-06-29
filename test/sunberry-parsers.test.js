@@ -47,6 +47,23 @@ test('parseGridValues treats inverter less-than values as zero', () => {
   });
 });
 
+test('parseGridValues preserves signed phase powers for import and export calculations', () => {
+  const html = `
+    <label>L1:</label><label>-120  W</label><label>-4  %</label>
+    <label>L2:</label><label>&lt;30  W</label><label>&lt;1  %</label>
+    <label>L3:</label><label>60  W</label><label>2  %</label>
+    <label>Celkem:</label><label>-60  W</label><label>-2  %</label>`;
+
+  assert.deepEqual(parseGridValues(html), {
+    L1: -120,
+    L2: 0,
+    L3: 60,
+    Total: -60,
+    percentages: { L1: -4, L2: 0, L3: 2, Total: -2 },
+    timestamp: null,
+  });
+});
+
 test('parseBackupValues extracts backup phase powers, percentages, and timestamp', () => {
   const html = `
     <div class="form-row"><label>L1:</label><label>31  W</label><label>1  %</label></div>

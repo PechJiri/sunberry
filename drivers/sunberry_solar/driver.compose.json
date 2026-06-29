@@ -4,8 +4,12 @@
     "en": "Sunberry Solar"
   },
   "class": "solarpanel",
+  "energy": {
+    "meterPowerExportedCapability": "meter_power"
+  },
   "capabilities": [
     "measure_power",
+    "meter_power",
     "measure_pv1",
     "measure_pv2"
   ],
@@ -22,25 +26,7 @@
   },
   "pair": [
     {
-      "id": "pair",
-      "navigation": {
-        "next": "list_devices"
-      }
-    },
-    {
-      "id": "list_devices",
-      "template": "list_devices",
-      "navigation": {
-        "next": "add_my_devices",
-        "prev": "pair"
-      },
-      "options": {
-        "singular": true
-      }
-    },
-    {
-      "id": "add_my_devices",
-      "template": "add_devices"
+      "id": "pair"
     }
   ]
 }
