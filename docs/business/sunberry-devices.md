@@ -24,18 +24,32 @@ Homey device:
 
 - Driver: `sunberry_battery`
 - Class: `battery`
-- Energy model: `homeBattery: true`
+- Energy model:
+  - `homeBattery: true`
+  - `meterPowerImportedCapability: meter_power.imported`
+  - `meterPowerExportedCapability: meter_power.exported`
 
 Mapped values:
 
 | Sunberry value | Homey capability | Notes |
 | --- | --- | --- |
 | Battery state | internal normalization | `Nabijeni` = charging, `Vybijeni` = discharging, idle/unknown = 0 W |
+| Battery state | `battery_charging_state` | Standard Homey state: `charging`, `discharging`, or `idle` |
 | Kapacita baterie, percent | `measure_battery` | Standard battery percentage |
 | Kapacita baterie, Wh | `stored_energy_kWh` | Stored energy in kWh; intentionally not named as a battery percentage capability |
 | Vykon baterie | `measure_power` | Positive while charging, negative while discharging |
+| Integrated positive battery power | `meter_power.imported` | Estimated cumulative charged kWh |
+| Integrated negative battery power | `meter_power.exported` | Estimated cumulative discharged kWh |
 | Max nabijeni | `battery_max_charging_power` | Current charging limit reported by Sunberry |
 | Teplota baterii | `measure_temperature` | Battery temperature |
+
+Homey Energy sign convention:
+
+- Positive `measure_power` means the battery is consuming power and charging.
+- Negative `measure_power` means the battery is delivering power and discharging.
+- `meter_power.imported` tracks energy charged into the battery.
+- `meter_power.exported` tracks energy discharged from the battery.
+- These cumulative kWh values are estimates derived from instantaneous battery W and the polling interval. They are not billing-grade meter readings.
 
 Force charging behavior:
 
@@ -139,6 +153,7 @@ Backup values are exposed as informational capabilities only. They are not used 
 ## Maintenance Notes
 
 - Parser behavior for `<30 W` and signed GRID values is covered by `test/sunberry-parsers.test.js`.
+- Battery charged/discharged kWh estimation behavior is covered by `test/battery-energy-estimator.test.js`.
 - Grid kWh estimation behavior is covered by `test/grid-energy-estimator.test.js`.
 - Solar kWh estimation behavior is covered by `test/solar-energy-estimator.test.js`.
 - Request queue behavior is covered by `test/sunberry-client.test.js`.

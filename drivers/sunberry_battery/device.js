@@ -1,6 +1,7 @@
 'use strict';
 
 const DataValidator = require('../../lib/DataValidator');
+const { updateEstimatedBatteryMeters } = require('../../lib/BatteryEnergyEstimator');
 const { didCrossBatteryLevel } = require('../../lib/FlowLogic');
 const SunberryBatteryControl = require('../../lib/SunberryBatteryControl');
 const SunberryClient = require('../../lib/SunberryClient');
@@ -27,6 +28,11 @@ class SunberryBatteryDevice extends SunberryPollingDevice {
         const previousMaxChargingPower = this.getCapabilityValue('battery_max_charging_power');
         const values = await this.createClient().getBatteryValues();
         const updates = normalizeBatteryMeasurements(values);
+        const estimatedBatteryMeters = await updateEstimatedBatteryMeters(this, updates.measure_power);
+        if (estimatedBatteryMeters !== null) {
+            updates['meter_power.imported'] = estimatedBatteryMeters.importedKWh;
+            updates['meter_power.exported'] = estimatedBatteryMeters.exportedKWh;
+        }
 
         await applyCapabilityUpdates(this, updates);
         await this.triggerBatteryMeasurementFlows(previousBatteryLevel, previousMaxChargingPower, updates);

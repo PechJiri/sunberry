@@ -21,6 +21,7 @@ test('normalizeBatteryMeasurements makes charging power positive', () => {
   });
 
   assert.equal(result.measure_power, 1324);
+  assert.equal(result.battery_charging_state, 'charging');
   assert.equal(result.measure_battery, 21);
   assert.equal(result.stored_energy_kWh, 4.397);
   assert.equal(result.remaining_kWh_to_full, 16.54);
@@ -37,11 +38,14 @@ test('normalizeBatteryMeasurements makes discharging power negative', () => {
   });
 
   assert.equal(result.measure_power, -1324);
+  assert.equal(result.battery_charging_state, 'discharging');
 });
 
 test('normalizeBatteryMeasurements sets idle or unknown battery power to zero', () => {
   assert.equal(normalizeBatteryMeasurements({ state: 'idle', power: 1324 }).measure_power, 0);
   assert.equal(normalizeBatteryMeasurements({ state: null, power: 1324 }).measure_power, 0);
+  assert.equal(normalizeBatteryMeasurements({ state: 'idle', power: 1324 }).battery_charging_state, 'idle');
+  assert.equal(normalizeBatteryMeasurements({ state: null, power: 1324 }).battery_charging_state, 'idle');
 });
 
 test('normalizeSolarMeasurements computes total power and defaults missing pv2 to zero', () => {

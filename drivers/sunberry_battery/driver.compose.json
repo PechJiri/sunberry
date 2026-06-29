@@ -5,11 +5,16 @@
   },
   "class": "battery",
   "energy": {
-    "homeBattery": true
+    "homeBattery": true,
+    "meterPowerImportedCapability": "meter_power.imported",
+    "meterPowerExportedCapability": "meter_power.exported"
   },
   "capabilities": [
     "measure_power",
+    "meter_power.imported",
+    "meter_power.exported",
     "measure_battery",
+    "battery_charging_state",
     "stored_energy_kWh",
     "remaining_kWh_to_full",
     "battery_max_charging_power",
