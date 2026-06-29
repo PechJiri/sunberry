@@ -49,7 +49,6 @@ class SunberryDevice extends Homey.Device {
             await this.initializeLogger();
             await this.initializeCapabilities();
             await this.initializeFlowCards();
-            await this.registerFlowCardHandlers();  // Nové
             await this.initializeAPI();
             await this.loadCachedValues();
             
@@ -112,36 +111,6 @@ class SunberryDevice extends Homey.Device {
         this.flowCardManager.setLogger(this.logger);  // Nové - předání loggeru
         await this.flowCardManager.initialize();
         this.logger.info('Flow karty byly inicializovány');
-    }
-
-    /**
-     * Registrace handlerů pro flow karty
-     */
-    async registerFlowCardHandlers() {
-        try {
-            // Registrace akčních karet
-            const actionCards = {
-                'turn_on_battery_charging': this.turnOnBatteryCharging.bind(this),
-                'turn_off_battery_charging': this.turnOffBatteryCharging.bind(this),
-                'block_battery_discharge': this.blockBatteryDischarge.bind(this),
-                'enable_battery_discharge': this.enableBatteryDischarge.bind(this)
-            };
-
-            for (const [cardId, handler] of Object.entries(actionCards)) {
-                const card = this.homey.flow.getActionCard(cardId);
-                if (card) {
-                    card.registerRunListener(async (args) => {
-                        return await handler(args);
-                    });
-                    this.logger.debug(`Registrován handler pro kartu ${cardId}`);
-                }
-            }
-
-            this.logger.info('Flow card handlery byly úspěšně registrovány');
-        } catch (error) {
-            this.logger.error('Chyba při registraci flow card handlerů:', error);
-            throw error;
-        }
     }
 
     /**
@@ -360,7 +329,10 @@ class SunberryDevice extends Homey.Device {
                         case 'measure_battery_percent':
                             if (oldValue !== update.value) {
                                 const tokens = {};
-                                const state = { battery_level: update.value };
+                                const state = {
+                                    previous_battery_level: oldValue,
+                                    battery_level: update.value
+                                };
                                 
                                 await this.homey.flow
                                     .getDeviceTriggerCard('battery_level_changed')

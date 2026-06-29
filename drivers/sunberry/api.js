@@ -3,6 +3,10 @@
 const Logger = require('../../lib/Logger');
 const DataValidator = require('../../lib/DataValidator');
 const CookieManager = require('../../lib/CookieManager');
+const {
+    parseGridValues,
+    parseBatteryValues
+} = require('../../lib/SunberryParsers');
 
 // Konstanty pro API endpointy
 const API_ENDPOINTS = {
@@ -403,29 +407,14 @@ class SunberryAPI {
      * @private
      */
     parseGridHtml(gridHtml) {
-        const parseValue = (matchResult) => {
-            if (!matchResult) return null;
-            const value = matchResult[1];
-            return parseInt(value, 10);
-        };
-
-        const L1Match = gridHtml.match(/L1:\s*<\/label>\s*<label[^>]*>\s*([-\d.]+)\s*W/);
-        const L2Match = gridHtml.match(/L2:\s*<\/label>\s*<label[^>]*>\s*([-\d.]+)\s*W/);
-        const L3Match = gridHtml.match(/L3:\s*<\/label>\s*<label[^>]*>\s*([-\d.]+)\s*W/);
-        const totalMatch = gridHtml.match(/Celkem:\s*<\/label>\s*<label[^>]*>\s*([-\d.]+)\s*W/);
-
-        this.logger.debug('Parsované hodnoty sítě:', {
-            L1: L1Match ? L1Match[1] : null,
-            L2: L2Match ? L2Match[1] : null,
-            L3: L3Match ? L3Match[1] : null,
-            total: totalMatch ? totalMatch[1] : null
-        });
+        const values = parseGridValues(gridHtml);
+        this.logger.debug('Parsované hodnoty sítě:', values);
 
         return {
-            L1: parseValue(L1Match),
-            L2: parseValue(L2Match),
-            L3: parseValue(L3Match),
-            Total: parseValue(totalMatch)
+            L1: values.L1,
+            L2: values.L2,
+            L3: values.L3,
+            Total: values.Total
         };
     }
 
@@ -434,25 +423,9 @@ class SunberryAPI {
      * @private
      */
     parseBatteryHtml(batteryHtml) {
-        const kWhMatch = batteryHtml.match(/<label[^>]*>\s*([-\d.]+)\s*Wh<\/label>/);
-        const percentMatch = batteryHtml.match(/<label[^>]*>\s*([-\d.]+)\s*%\s*<\/label>/);
-        const maxChargingMatch = batteryHtml.match(/Max nabíjení:[^>]*>[\s\S]*?<label[^>]*>\s*([-\d.]+)\s*W<\/label>/);
-
-        this.logger.debug('Parsování baterie - matches:', {
-            kWh: kWhMatch ? kWhMatch[1] : null,
-            percent: percentMatch ? percentMatch[1] : null,
-            maxCharging: maxChargingMatch ? maxChargingMatch[1] : null
-        });
-
-        const actual_kWh = kWhMatch ? parseInt(kWhMatch[1], 10) / 1000 : null;
-        const actual_percent = percentMatch ? parseInt(percentMatch[1], 10) : null;
-        const max_charging_power = maxChargingMatch ? parseInt(maxChargingMatch[1], 10) : null;
-
-        return {
-            actual_kWh: actual_kWh || 0,
-            actual_percent: actual_percent || 0,
-            max_charging_power: max_charging_power || 0
-        };
+        const values = parseBatteryValues(batteryHtml);
+        this.logger.debug('Parsované hodnoty baterie:', values);
+        return values;
     }
 }
 

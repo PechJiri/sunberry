@@ -52,7 +52,7 @@
           "en": "Battery reaches [[target_level]]%"
         },
         "hint": {
-          "en": "Triggers when battery level exactly matches your target value (e.g., when battery reaches exactly 80%)"
+          "en": "Triggers when battery level reaches or crosses your target value between updates."
         },
         "args": [
           {

@@ -1,6 +1,7 @@
 'use strict';
 
 const DataValidator = require('../../lib/DataValidator');
+const { didCrossBatteryLevel } = require('../../lib/FlowLogic');
 
 class FlowCardManager {
     constructor(homey, device) {
@@ -58,12 +59,19 @@ class FlowCardManager {
                             }
     
                             const currentLevel = Number(state.battery_level);
+                            const previousLevel = state.previous_battery_level === null || state.previous_battery_level === undefined
+                                ? null
+                                : Number(state.previous_battery_level);
                             const targetLevel = Number(args.target_level);
     
-                            // Porovnáváme přesnou hodnotu
-                            const matches = Math.abs(currentLevel - targetLevel) < 0.1;
+                            const matches = didCrossBatteryLevel({
+                                previous: previousLevel,
+                                current: currentLevel,
+                                target: targetLevel
+                            });
     
                             this.logger.debug('Vyhodnocení battery_level_changed:', {
+                                previousLevel,
                                 currentLevel,
                                 targetLevel,
                                 matches

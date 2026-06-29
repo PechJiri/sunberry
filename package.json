@@ -1,7 +1,11 @@
 {
   "name": "com.sunberry.local",
-  "version": "1.0.0",
+  "version": "1.3.2",
   "main": "app.js",
-  "scripts": {},
+  "scripts": {
+    "test": "node --test",
+    "build": "npx homey app build",
+    "validate": "npx homey app validate"
+  },
   "dependencies": {}
 }

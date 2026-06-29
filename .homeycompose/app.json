@@ -39,26 +39,5 @@
   "source": "https://github.com/PechJiri/sunberry",
   "homepage": "https://www.solidsun.cz/sunberry",
   "support": "mailto:jiri.pech@centrum.cz",
-  "homeyCommunityTopicId": 119569,
-  "drivers": [
-    {
-      "id": "sunberry",
-      "name": {
-        "en": "Sunberry"
-      },
-      "connectivity": [
-        "lan",
-        "cloud"
-      ],
-      "icon": "/assets/icon.svg",
-      "capabilities": [
-        "force_charging",
-        "block_battery_discharge",
-        "measure_L1",
-        "measure_L2",
-        "measure_L3",
-        "measure_total"
-      ]
-    }
-  ]
+  "homeyCommunityTopicId": 119569
 }
