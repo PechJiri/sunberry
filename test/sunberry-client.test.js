@@ -13,7 +13,7 @@ test('SunberryClient reads values through endpoint-specific parsers', async () =
       calls.push(url);
       const htmlByUrl = {
         'http://example.test/battery/values': '<label>Nabijeni</label><label>Kapacita baterie:</label><label>4397 Wh</label><label>21 %</label><label>Vykon baterie:</label><label>1324 W</label><label>13 %</label><label>Max nabijeni:</label><label>10889 W</label><label>Max vybijeni:</label><label>10889 W</label><label>Teplota baterii:</label><label>42 deg C</label>',
-        'http://example.test/pv/values': '<label>Pv1:</label><label>100 W</label><label>2 %</label><label>Pv2:</label><label>&lt;50 W</label><label>&lt;1 %</label>',
+        'http://example.test/pv/values': '<label>Pv1:</label><label>100 W</label><label>2 %</label><label>Pv2:</label><label>0 W</label><label>0 %</label>',
         'http://example.test/grid/values': '<label>L1:</label><label>1 W</label><label>1 %</label><label>L2:</label><label>2 W</label><label>2 %</label><label>L3:</label><label>3 W</label><label>3 %</label><label>Celkem:</label><label>6 W</label><label>6 %</label>',
         'http://example.test/backup/values': '<label>L1:</label><label>4 W</label><label>1 %</label><label>L2:</label><label>5 W</label><label>2 %</label><label>L3:</label><label>6 W</label><label>3 %</label><label>Celkem:</label><label>15 W</label><label>6 %</label>',
       };

@@ -117,7 +117,7 @@ test('parseBatteryValues does not infer battery state from max power labels', ()
 
 test('parsePvValues extracts PV string powers and percentages', () => {
   const html = `
-    <label>Pv1:</label><label>&lt;50  W</label><label>&lt;1  %</label>
+    <label>Pv1:</label><label>0  W</label><label>0  %</label>
     <label>Pv2:</label><label>1250  W</label><label>31  %</label>
     <label>29.06.2026 20:42:59</label>`;
 

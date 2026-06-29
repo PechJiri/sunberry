@@ -65,7 +65,7 @@ Source endpoint:
 
 Business meaning:
 
-The PV window reports the current solar inverter input power for PV strings `PV1` and `PV2`. `PV2` may be missing or effectively unused on some installations. The inverter cannot measure very small PV values precisely; values displayed by the portal as a less-than threshold are treated as `0 W`.
+The PV window reports the current solar inverter input power for PV strings `PV1` and `PV2`, in watts and as a percentage of the maximum possible power for each string. The portal reports photovoltaic production down to `0 W`. `PV2` may be missing or effectively unused on some installations.
 
 Homey device:
 
@@ -83,15 +83,14 @@ Mapped values:
 | Sunberry value | Homey capability | Notes |
 | --- | --- | --- |
 | PV1 power | `measure_pv1` | PV string 1 current power |
-| PV2 power | `measure_pv2` | PV string 2 current power; missing or below-threshold values count as 0 W |
+| PV2 power | `measure_pv2` | PV string 2 current power; missing values count as 0 W |
 | PV1 + PV2 | `measure_power` | Total current solar production |
 | Integrated PV total | `meter_power` | Estimated cumulative generated solar kWh |
 
-Threshold handling:
+Missing value handling:
 
-- Values displayed as a less-than threshold, for example `<50 W`, are treated as `0 W`.
 - Missing `PV2` data is treated as `0 W`.
-- Threshold values do not add to cumulative solar kWh.
+- Reported `0 W` values are preserved as `0 W` and do not add to cumulative solar kWh.
 
 Solar cumulative behavior:
 

@@ -488,7 +488,7 @@
             "en": "Polling interval in seconds (default 10s, minimum 5s)"
           },
           "hint": {
-            "en": "Set the interval for data updates from the Sunberry. Solar kWh is estimated by integrating total PV W between successful polls; values shown below the inverter threshold count as 0 W."
+            "en": "Set the interval for data updates from the Sunberry. Solar kWh is estimated by integrating total PV W between successful polls."
           },
           "value": 10,
           "min": 5
