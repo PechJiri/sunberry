@@ -10,5 +10,8 @@
   },
   "2.0.0": {
     "en": "Breaking change: Sunberry is now paired as three Homey Energy-aware devices: Battery, Solar, and Grid. Existing users must re-pair their Sunberry host."
+  },
+  "3.0.0": {
+    "en": "Version 3.0.0 is a breaking update. Sunberry is now split into three separate Homey devices: Battery, Solar and Grid, so existing users must remove the old all-in-one device and add the new devices again. This release adds better Homey Energy support for battery state, solar production, grid/backup values and estimated kWh. Polling is now queued and more tolerant to temporary Sunberry errors, and battery charging controls now respect the current maximum charging power reported by Sunberry."
   }
 }
