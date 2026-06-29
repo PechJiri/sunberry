@@ -7,5 +7,8 @@
   },
   "1.3.2": {
     "en": "memory optimalisation"
+  },
+  "2.0.0": {
+    "en": "Breaking change: Sunberry is now paired as three Homey Energy-aware devices: Battery, Solar, and Grid. Existing users must re-pair their Sunberry host."
   }
 }

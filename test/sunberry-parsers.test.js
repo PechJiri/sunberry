@@ -5,6 +5,7 @@ const test = require('node:test');
 
 const {
   parseBatteryValues,
+  parseBackupValues,
   parseGridValues,
   parsePvValues,
   parseBoilerValues,
@@ -43,6 +44,24 @@ test('parseGridValues treats inverter less-than values as zero', () => {
     Total: 0,
     percentages: { L1: 0, L2: 0, L3: 0, Total: 0 },
     timestamp: null,
+  });
+});
+
+test('parseBackupValues extracts backup phase powers, percentages, and timestamp', () => {
+  const html = `
+    <div class="form-row"><label>L1:</label><label>31  W</label><label>1  %</label></div>
+    <div class="form-row"><label>L2:</label><label>42  W</label><label>2  %</label></div>
+    <div class="form-row"><label>L3:</label><label>&lt;30  W</label><label>&lt;1  %</label></div>
+    <div class="form-row"><label>Celkem:</label><label>73  W</label><label>3  %</label></div>
+    <label>29.06.2026 20:43:15</label>`;
+
+  assert.deepEqual(parseBackupValues(html), {
+    L1: 31,
+    L2: 42,
+    L3: 0,
+    Total: 73,
+    percentages: { L1: 1, L2: 2, L3: 0, Total: 3 },
+    timestamp: '29.06.2026 20:43:15',
   });
 });
 

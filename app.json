@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.sunberry.local",
-  "version": "1.3.2",
+  "version": "2.0.0",
   "compatibility": ">=12.0.0",
   "sdk": 3,
   "platforms": [
@@ -58,7 +58,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           },
           {
             "name": "target_level",
@@ -94,7 +94,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           }
         ]
       },
@@ -110,7 +110,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           }
         ]
       },
@@ -126,7 +126,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           }
         ]
       }
@@ -135,7 +135,7 @@
       {
         "id": "battery_level_check",
         "title": {
-          "en": "Battery level is above/bellow specified level"
+          "en": "Battery level is above/below specified level"
         },
         "titleFormatted": {
           "en": "Battery level is [[comparison]] [[level]]%"
@@ -144,7 +144,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           },
           {
             "name": "comparison",
@@ -192,7 +192,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           }
         ]
       },
@@ -206,7 +206,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           }
         ]
       }
@@ -222,7 +222,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           }
         ]
       },
@@ -236,7 +236,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           }
         ]
       },
@@ -250,7 +250,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           }
         ]
       },
@@ -260,7 +260,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=sunberry"
+            "filter": "driver_id=sunberry_battery"
           },
           {
             "name": "limit",
@@ -283,22 +283,24 @@
   },
   "drivers": [
     {
-      "id": "sunberry",
+      "id": "sunberry_battery",
       "name": {
-        "en": "Sunberry"
+        "en": "Sunberry Battery"
       },
-      "class": "other",
+      "class": "battery",
+      "energy": {
+        "homeBattery": true
+      },
       "capabilities": [
-        "force_charging",
-        "block_battery_discharge",
-        "measure_L1",
-        "measure_L2",
-        "measure_L3",
-        "measure_total",
+        "measure_power",
+        "measure_battery",
         "measure_battery_kWh",
-        "measure_battery_percent",
         "remaining_kWh_to_full",
-        "battery_max_charging_power"
+        "battery_max_charging_power",
+        "battery_max_discharging_power",
+        "measure_temperature",
+        "force_charging",
+        "block_battery_discharge"
       ],
       "platforms": [
         "local"
@@ -307,9 +309,9 @@
         "lan"
       ],
       "images": {
-        "small": "/drivers/sunberry/assets/images/small.png",
-        "large": "/drivers/sunberry/assets/images/large.png",
-        "xlarge": "/drivers/sunberry/assets/images/xlarge.png"
+        "small": "/drivers/sunberry_battery/assets/images/small.png",
+        "large": "/drivers/sunberry_battery/assets/images/large.png",
+        "xlarge": "/drivers/sunberry_battery/assets/images/xlarge.png"
       },
       "pair": [
         {
@@ -355,7 +357,7 @@
           },
           "value": "sunberry.local",
           "hint": {
-            "en": "Enter the IP address of your Sunberry device"
+            "en": "Enter the IP address or hostname of your Sunberry device"
           }
         },
         {
@@ -380,12 +382,197 @@
           "hint": {
             "en": "Enable or disable detailed debug logs for troubleshooting."
           },
-          "value": true
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "sunberry_grid",
+      "name": {
+        "en": "Sunberry Grid"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "measure_L1",
+        "measure_L2",
+        "measure_L3",
+        "measure_total",
+        "measure_backup_L1",
+        "measure_backup_L2",
+        "measure_backup_L3",
+        "measure_backup_total"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/sunberry_grid/assets/images/small.png",
+        "large": "/drivers/sunberry_grid/assets/images/large.png",
+        "xlarge": "/drivers/sunberry_grid/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "pair",
+          "navigation": {
+            "next": "list_devices"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices",
+            "prev": "pair"
+          },
+          "options": {
+            "singular": true
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "id": "update_interval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval in seconds (default 10s, minimum 5s)"
+          },
+          "hint": {
+            "en": "Set the interval for data updates from the Sunberry."
+          },
+          "value": 10,
+          "min": 5
+        },
+        {
+          "id": "ip_address",
+          "type": "text",
+          "label": {
+            "en": "IP Address"
+          },
+          "value": "sunberry.local",
+          "hint": {
+            "en": "Enter the IP address or hostname of your Sunberry device"
+          }
+        },
+        {
+          "id": "enable_debug_logs",
+          "type": "checkbox",
+          "label": {
+            "en": "Enable Debug Logs"
+          },
+          "hint": {
+            "en": "Enable or disable detailed debug logs for troubleshooting."
+          },
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "sunberry_solar",
+      "name": {
+        "en": "Sunberry Solar"
+      },
+      "class": "solarpanel",
+      "capabilities": [
+        "measure_power",
+        "measure_pv1",
+        "measure_pv2"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/sunberry_solar/assets/images/small.png",
+        "large": "/drivers/sunberry_solar/assets/images/large.png",
+        "xlarge": "/drivers/sunberry_solar/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "pair",
+          "navigation": {
+            "next": "list_devices"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices",
+            "prev": "pair"
+          },
+          "options": {
+            "singular": true
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "id": "update_interval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval in seconds (default 10s, minimum 5s)"
+          },
+          "hint": {
+            "en": "Set the interval for data updates from the Sunberry."
+          },
+          "value": 10,
+          "min": 5
+        },
+        {
+          "id": "ip_address",
+          "type": "text",
+          "label": {
+            "en": "IP Address"
+          },
+          "value": "sunberry.local",
+          "hint": {
+            "en": "Enter the IP address or hostname of your Sunberry device"
+          }
+        },
+        {
+          "id": "enable_debug_logs",
+          "type": "checkbox",
+          "label": {
+            "en": "Enable Debug Logs"
+          },
+          "hint": {
+            "en": "Enable or disable detailed debug logs for troubleshooting."
+          },
+          "value": false
         }
       ]
     }
   ],
   "capabilities": {
+    "battery_max_discharging_power": {
+      "type": "number",
+      "title": {
+        "en": "Maximum Battery Discharging Power"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/battery_charge.svg",
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0
+    },
     "battery_max_charging_power": {
       "type": "number",
       "title": {
@@ -446,6 +633,70 @@
         "en": "Not Charging"
       },
       "icon": "/assets/images/battery.svg"
+    },
+    "measure_backup_L1": {
+      "type": "number",
+      "title": {
+        "en": "Backup Phase 1 Power"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/power.svg",
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "min": 0
+    },
+    "measure_backup_L2": {
+      "type": "number",
+      "title": {
+        "en": "Backup Phase 2 Power"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/power.svg",
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "min": 0
+    },
+    "measure_backup_L3": {
+      "type": "number",
+      "title": {
+        "en": "Backup Phase 3 Power"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/power.svg",
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "min": 0
+    },
+    "measure_backup_total": {
+      "type": "number",
+      "title": {
+        "en": "Backup Total Power"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/power.svg",
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "min": 0
     },
     "measure_battery_kWh": {
       "type": "number",
@@ -524,6 +775,38 @@
         "en": "W"
       },
       "decimals": 0
+    },
+    "measure_pv1": {
+      "type": "number",
+      "title": {
+        "en": "PV1 Power"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/power.svg",
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "min": 0
+    },
+    "measure_pv2": {
+      "type": "number",
+      "title": {
+        "en": "PV2 Power"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/power.svg",
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "min": 0
     },
     "measure_total": {
       "type": "number",

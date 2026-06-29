@@ -1,0 +1,47 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const test = require('node:test');
+
+const SunberryClient = require('../lib/SunberryClient');
+
+test('SunberryClient reads values through endpoint-specific parsers', async () => {
+  const calls = [];
+  const client = new SunberryClient({
+    baseUrl: 'http://example.local/',
+    fetchImpl: async (url) => {
+      calls.push(url);
+      const htmlByUrl = {
+        'http://example.local/battery/values': '<label>Nabijeni</label><label>Kapacita baterie:</label><label>4397 Wh</label><label>21 %</label><label>Vykon baterie:</label><label>1324 W</label><label>13 %</label><label>Max nabijeni:</label><label>10889 W</label><label>Max vybijeni:</label><label>10889 W</label><label>Teplota baterii:</label><label>42 deg C</label>',
+        'http://example.local/pv/values': '<label>Pv1:</label><label>100 W</label><label>2 %</label><label>Pv2:</label><label>&lt;50 W</label><label>&lt;1 %</label>',
+        'http://example.local/grid/values': '<label>L1:</label><label>1 W</label><label>1 %</label><label>L2:</label><label>2 W</label><label>2 %</label><label>L3:</label><label>3 W</label><label>3 %</label><label>Celkem:</label><label>6 W</label><label>6 %</label>',
+        'http://example.local/backup/values': '<label>L1:</label><label>4 W</label><label>1 %</label><label>L2:</label><label>5 W</label><label>2 %</label><label>L3:</label><label>6 W</label><label>3 %</label><label>Celkem:</label><label>15 W</label><label>6 %</label>',
+      };
+
+      return {
+        status: 200,
+        text: async () => htmlByUrl[url],
+      };
+    },
+  });
+
+  assert.equal((await client.getBatteryValues()).state, 'charging');
+  assert.equal((await client.getSolarValues()).total_power, 100);
+  assert.equal((await client.getGridValues()).Total, 6);
+  assert.equal((await client.getBackupValues()).Total, 15);
+  assert.deepEqual(calls, [
+    'http://example.local/battery/values',
+    'http://example.local/pv/values',
+    'http://example.local/grid/values',
+    'http://example.local/backup/values',
+  ]);
+});
+
+test('SunberryClient rejects non-200 endpoint responses', async () => {
+  const client = new SunberryClient({
+    baseUrl: 'http://example.local',
+    fetchImpl: async () => ({ status: 503, text: async () => 'nope' }),
+  });
+
+  await assert.rejects(() => client.getGridValues(), /HTTP 503/);
+});

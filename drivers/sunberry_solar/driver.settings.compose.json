@@ -1,0 +1,36 @@
+[
+  {
+    "id": "update_interval",
+    "type": "number",
+    "label": {
+      "en": "Polling interval in seconds (default 10s, minimum 5s)"
+    },
+    "hint": {
+      "en": "Set the interval for data updates from the Sunberry."
+    },
+    "value": 10,
+    "min": 5
+  },
+  {
+    "id": "ip_address",
+    "type": "text",
+    "label": {
+      "en": "IP Address"
+    },
+    "value": "sunberry.local",
+    "hint": {
+      "en": "Enter the IP address or hostname of your Sunberry device"
+    }
+  },
+  {
+    "id": "enable_debug_logs",
+    "type": "checkbox",
+    "label": {
+      "en": "Enable Debug Logs"
+    },
+    "hint": {
+      "en": "Enable or disable detailed debug logs for troubleshooting."
+    },
+    "value": false
+  }
+]
