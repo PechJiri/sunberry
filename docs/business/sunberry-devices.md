@@ -14,6 +14,8 @@ The user can enter either the real device IP address or `sunberry.local` during 
 
 All HTTP reads go through a shared request queue keyed by the resolved base URL. This prevents Battery, Solar, and Grid polling from sending requests to the same physical Sunberry unit at exactly the same time.
 
+Transient polling failures, such as a temporary HTTP 500 from one Sunberry page, do not immediately mark a Homey device as unavailable. A device is marked unavailable only after three consecutive failed polling attempts. Any successful poll resets the failure counter.
+
 ## Battery Device
 
 Source endpoint:
