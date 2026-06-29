@@ -4,6 +4,9 @@
     "en": "Sunberry Grid"
   },
   "class": "sensor",
+  "energy": {
+    "cumulative": true
+  },
   "capabilities": [
     "measure_power",
     "measure_L1",

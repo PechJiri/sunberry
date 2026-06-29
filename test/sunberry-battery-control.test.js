@@ -9,6 +9,7 @@ const {
   buildBlockBatteryDischargePayload,
   buildEnableBatteryDischargePayload,
 } = require('../lib/SunberryBatteryControl');
+const SunberryBatteryControl = require('../lib/SunberryBatteryControl');
 
 test('battery control payloads preserve legacy timer fields', () => {
   assert.deepEqual(buildEnableForceChargingPayload(5000), {
@@ -29,4 +30,20 @@ test('battery control payloads preserve legacy timer fields', () => {
   assert.equal(buildDisableForceChargingPayload(7000).force_chg_power_0, '7000');
   assert.equal(buildBlockBatteryDischargePayload().block_bat_dis_0, 'on');
   assert.equal(buildEnableBatteryDischargePayload().force_chg_power_0, '100');
+});
+
+test('battery control requires configured base URL before posting', async () => {
+  const control = new SunberryBatteryControl({
+    fetchImpl: async () => {
+      throw new Error('fetch should not be called');
+    },
+    cookieManager: {
+      getCookie: async () => 'cookie',
+    },
+  });
+
+  await assert.rejects(
+    () => control.enableForceCharging(5000),
+    /base URL is not configured/
+  );
 });

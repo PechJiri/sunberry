@@ -98,7 +98,7 @@
                placeholder="sunberry.local" 
                value="" 
                oninput="handleInput(event)" />
-        <small>Default is sunberry.local</small>
+        <small>Example: sunberry.local</small>
         <div id="error-message" class="error-message"></div>
     </div>
 
@@ -112,7 +112,6 @@
 
 <script type="application/javascript">
     // Konstanty
-    const DEFAULT_HOSTNAME = 'sunberry.local';
     const INPUT_DEBOUNCE_TIME = 300;
 
     // Globální proměnné
@@ -132,7 +131,7 @@
         try {
             const settings = await Homey.emit("getSettings");
             const ipInput = document.getElementById('ip_address');
-            ipInput.value = settings?.ip_address || DEFAULT_HOSTNAME;
+            ipInput.value = settings?.ip_address || '';
             validateInput(ipInput.value);
         } catch (error) {
             console.error("Error during getSettings:", error);

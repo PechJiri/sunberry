@@ -2,7 +2,7 @@
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.sunberry.local",
   "version": "2.0.0",
-  "compatibility": ">=12.0.0",
+  "compatibility": ">=12.3.0",
   "sdk": 3,
   "platforms": [
     "local"
@@ -355,9 +355,9 @@
           "label": {
             "en": "IP Address"
           },
-          "value": "sunberry.local",
+          "value": "",
           "hint": {
-            "en": "Enter the IP address or hostname of your Sunberry device"
+            "en": "Enter the IP address or hostname of your Sunberry device, for example sunberry.local"
           }
         },
         {
@@ -392,6 +392,9 @@
         "en": "Sunberry Grid"
       },
       "class": "sensor",
+      "energy": {
+        "cumulative": true
+      },
       "capabilities": [
         "measure_power",
         "measure_L1",
@@ -456,9 +459,9 @@
           "label": {
             "en": "IP Address"
           },
-          "value": "sunberry.local",
+          "value": "",
           "hint": {
-            "en": "Enter the IP address or hostname of your Sunberry device"
+            "en": "Enter the IP address or hostname of your Sunberry device, for example sunberry.local"
           }
         },
         {
@@ -538,9 +541,9 @@
           "label": {
             "en": "IP Address"
           },
-          "value": "sunberry.local",
+          "value": "",
           "hint": {
-            "en": "Enter the IP address or hostname of your Sunberry device"
+            "en": "Enter the IP address or hostname of your Sunberry device, for example sunberry.local"
           }
         },
         {

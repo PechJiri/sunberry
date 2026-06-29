@@ -17,9 +17,9 @@
     "label": {
       "en": "IP Address"
     },
-    "value": "sunberry.local",
+    "value": "",
     "hint": {
-      "en": "Enter the IP address or hostname of your Sunberry device"
+      "en": "Enter the IP address or hostname of your Sunberry device, for example sunberry.local"
     }
   },
   {
