@@ -245,7 +245,7 @@ Limitations:
 
 Performance behavior:
 
-Smart Meter polling reads battery, solar, and grid values. The shared Sunberry client keeps a short in-memory HTML cache by endpoint and resolved base URL, so multiple Homey devices polling the same physical Sunberry unit within a short window can reuse fresh endpoint reads instead of sending duplicate requests to the Raspberry Pi/UniPi.
+Smart Meter polling reads battery, solar, and grid values. The shared Sunberry client keeps a short in-memory HTML cache by endpoint and resolved base URL, so multiple Homey devices polling the same physical Sunberry unit within a short window can reuse fresh endpoint reads instead of sending duplicate requests to the Raspberry Pi/UniPi. The cache window is long enough to cover startup jitter and request queue spacing, but shorter than the minimum polling interval, so devices in the same polling cycle tend to display the same sampled values while the next cycle can refresh them.
 
 ## Maintenance Notes
 

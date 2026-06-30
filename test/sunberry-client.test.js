@@ -170,3 +170,44 @@ test('SunberryClient reuses fresh endpoint reads across devices for a short TTL'
   assert.equal((await clientB.getSolarValues()).total_power, 100);
   assert.deepEqual(calls, ['http://cache.test/pv/values']);
 });
+
+test('SunberryClient cache covers startup jitter but expires before the minimum polling interval', async () => {
+  const originalNow = Date.now;
+  let now = 100000;
+  Date.now = () => now;
+  const calls = [];
+  const clientA = new SunberryClient({
+    baseUrl: 'http://jitter.test',
+    fetchImpl: async (url) => {
+      calls.push(url);
+      return {
+        status: 200,
+        text: async () => '<label>Pv1:</label><label>100 W</label><label>Pv2:</label><label>0 W</label>',
+      };
+    },
+  });
+  const clientB = new SunberryClient({
+    baseUrl: 'http://jitter.test',
+    fetchImpl: async (url) => {
+      calls.push(url);
+      return {
+        status: 200,
+        text: async () => '<label>Pv1:</label><label>200 W</label><label>Pv2:</label><label>0 W</label>',
+      };
+    },
+  });
+
+  try {
+    assert.equal((await clientA.getSolarValues()).total_power, 100);
+    now += 4000;
+    assert.equal((await clientB.getSolarValues()).total_power, 100);
+    now += 600;
+    assert.equal((await clientB.getSolarValues()).total_power, 200);
+    assert.deepEqual(calls, [
+      'http://jitter.test/pv/values',
+      'http://jitter.test/pv/values',
+    ]);
+  } finally {
+    Date.now = originalNow;
+  }
+});
