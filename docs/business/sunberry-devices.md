@@ -306,6 +306,8 @@ The Sunberry settings form is intentionally sent separately from activation. Whe
 | Digital output | `output` | Allowed values: `DO1`, `DO2`, `DO3`, `DO4`. |
 | Battery mode priority | `priority` | Allowed values: `soc`, `time`. |
 
+Timer settings are also sent as a complete form payload. When the timer start, timer stop, or timer mode setting changes, the app posts the complete all-week timer payload to `/heat_pump/timers` without changing the active switch state. When the user turns `onoff` on, the app posts the same complete timer payload first and then calls `/heat_pump/active_change/True`.
+
 Limitations:
 
 - The app does not currently mirror the Sunberry active switch from the settings page during polling. The `onoff` state reflects Homey control actions.

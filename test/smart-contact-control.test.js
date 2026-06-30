@@ -93,6 +93,29 @@ test('SunberrySmartContactControl disables active state with GET request', async
   assert.equal(calls[0].options.method, 'GET');
 });
 
+test('SunberrySmartContactControl posts timer settings without changing active state', async () => {
+  const calls = [];
+  const control = new SunberrySmartContactControl({
+    cookieManager: { getCookie: async () => 'session-cookie' },
+    fetchImpl: async (url, options) => {
+      calls.push({ url, options });
+      return { status: 302, text: async () => '' };
+    },
+  });
+
+  control.setBaseUrl('192.168.1.50');
+  await control.updateTimer({
+    start: '07:30',
+    stop: '20:45',
+    mode: 'combined',
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, 'http://192.168.1.50/heat_pump/timers');
+  assert.equal(calls[0].options.method, 'POST');
+  assert.equal(String(calls[0].options.body), 'start_0=07%3A30&stop_0=20%3A45&mode_0=combined&Mon_0=Mon_0&Tue_0=Tue_0&Wed_0=Wed_0&Thu_0=Thu_0&Fri_0=Fri_0&Sat_0=Sat_0&Sun_0=Sun_0&submit=');
+});
+
 test('SunberrySmartContactControl posts settings separately from active state', async () => {
   const calls = [];
   const control = new SunberrySmartContactControl({

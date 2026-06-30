@@ -37,3 +37,30 @@ test('smart contact settings update merges partial Homey changes into a complete
     priority: 'soc',
   }]);
 });
+
+test('smart contact timer update merges partial Homey changes into a complete timer payload', async () => {
+  const calls = [];
+  const device = new SunberrySmartContactDevice();
+
+  device.getSettings = () => ({
+    smart_contact_timer_start: '06:00',
+    smart_contact_timer_stop: '21:00',
+    smart_contact_timer_mode: 'battery',
+  });
+  device.controlApi = {
+    updateTimer: async (settings) => calls.push(settings),
+  };
+
+  await device.onSettings({
+    changedKeys: ['smart_contact_timer_stop'],
+    newSettings: {
+      smart_contact_timer_stop: '20:30',
+    },
+  });
+
+  assert.deepEqual(calls, [{
+    start: '06:00',
+    stop: '20:30',
+    mode: 'battery',
+  }]);
+});

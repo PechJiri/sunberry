@@ -14,6 +14,12 @@ const SMART_CONTACT_SETTING_KEYS = [
     'smart_contact_priority'
 ];
 
+const SMART_CONTACT_TIMER_SETTING_KEYS = [
+    'smart_contact_timer_start',
+    'smart_contact_timer_stop',
+    'smart_contact_timer_mode'
+];
+
 function validateTime(value, settingName) {
     const text = String(value || '').trim();
     if (!/^\d{2}:\d{2}$/.test(text)) {
@@ -77,22 +83,31 @@ class SunberrySmartContactDevice extends SunberryPollingDevice {
             this.controlApi.setBaseUrl(args.newSettings.ip_address);
         }
 
+        const settings = this.getMergedSettings(args.newSettings);
+
+        if (args.changedKeys.some(key => SMART_CONTACT_TIMER_SETTING_KEYS.includes(key))) {
+            await this.controlApi.updateTimer(this.getSmartContactTimerSettings(settings));
+        }
+
         if (args.changedKeys.some(key => SMART_CONTACT_SETTING_KEYS.includes(key))) {
-            const settings = {
-                ...this.getSettings(),
-                ...args.newSettings
-            };
             await this.controlApi.updateSettings(this.getSmartContactSettings(settings));
         }
 
         await super.onSettings(args);
     }
 
-    getSmartContactTimerSettings() {
+    getMergedSettings(newSettings = {}) {
         return {
-            start: validateTime(this.getSetting('smart_contact_timer_start') || '00:00', 'Timer start'),
-            stop: validateTime(this.getSetting('smart_contact_timer_stop') || '23:59', 'Timer stop'),
-            mode: validateEnum(this.getSetting('smart_contact_timer_mode') || 'battery', [
+            ...this.getSettings(),
+            ...newSettings
+        };
+    }
+
+    getSmartContactTimerSettings(settings = this.getSettings()) {
+        return {
+            start: validateTime(settings.smart_contact_timer_start || '00:00', 'Timer start'),
+            stop: validateTime(settings.smart_contact_timer_stop || '23:59', 'Timer stop'),
+            mode: validateEnum(settings.smart_contact_timer_mode || 'battery', [
                 'battery',
                 'pv_overflow',
                 'combined',
