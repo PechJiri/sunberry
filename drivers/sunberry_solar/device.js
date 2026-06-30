@@ -1,13 +1,14 @@
 'use strict';
 
 const SunberryClient = require('../../lib/SunberryClient');
+const { toSunberryBaseUrl } = require('../../lib/SunberryHostResolver');
 const { updateEstimatedSolarMeter } = require('../../lib/SolarEnergyEstimator');
 const { normalizeSolarMeasurements } = require('../../lib/SunberryMeasurements');
 const { SunberryPollingDevice, applyCapabilityUpdates } = require('../../lib/SunberryPollingDevice');
 
 class SunberrySolarDevice extends SunberryPollingDevice {
     createClient() {
-        return new SunberryClient({ baseUrl: `http://${this.getSetting('ip_address')}` });
+        return new SunberryClient({ baseUrl: toSunberryBaseUrl(this.getSetting('ip_address')) });
     }
 
     async pollOnce() {

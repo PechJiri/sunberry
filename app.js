@@ -4,7 +4,6 @@ const Homey = require('homey');
 const Logger = require('./lib/Logger');
 const { notifySunberryV3MigrationOnce } = require('./lib/SunberryMigrationNotification');
 
-// Konstanty pro nastavení
 const APP_SETTINGS = {
     LOGGER_CONTEXT: 'SunberryApp',
     ERROR_HANDLERS: {
@@ -13,122 +12,89 @@ const APP_SETTINGS = {
     }
 };
 
-/**
- * Hlavní třída aplikace Sunberry
- */
 class SunberryApp extends Homey.App {
-    /**
-     * @private
-     */
     async initializeLogger() {
         try {
             if (!this.homey.appLogger) {
                 this.logger = new Logger(this.homey, APP_SETTINGS.LOGGER_CONTEXT);
                 this.logger.setEnabled(true);
                 this.homey.appLogger = this.logger;
-                this.logger.info('SunberryApp logger byl inicializován');
+                this.logger.info('Sunberry app logger initialized');
             } else {
                 this.logger = this.homey.appLogger;
-                this.logger.info('Používám existující globální logger');
+                this.logger.info('Using existing global logger');
             }
         } catch (error) {
-            console.error('Kritická chyba při inicializaci loggeru:', error);
+            console.error('Critical error while initializing logger:', error);
             throw error;
         }
     }
 
-    /**
-     * Inicializace globálních event listenerů
-     * @private
-     */
     async initializeGlobalListeners() {
         try {
-            this.logger.info('Inicializace globálních listenerů');
+            this.logger.info('Initializing global listeners');
 
-            // Zachycení neošetřených výjimek
             this.homey.on(APP_SETTINGS.ERROR_HANDLERS.UNCAUGHT_EXCEPTION, (error) => {
-                this.logger.error('Neošetřená výjimka:', error);
+                this.logger.error('Unhandled exception:', error);
                 this.handleGlobalError(error, APP_SETTINGS.ERROR_HANDLERS.UNCAUGHT_EXCEPTION);
             });
 
-            // Zachycení neošetřených Promise rejekcí
-            this.homey.on(APP_SETTINGS.ERROR_HANDLERS.UNHANDLED_REJECTION, (reason, promise) => {
-                this.logger.error('Neošetřená Promise rejekce:', { reason, promise });
-                this.handleGlobalError(reason, APP_SETTINGS.ERROR_HANDLERS.UNHANDLED_REJECTION);
+            this.homey.on(APP_SETTINGS.ERROR_HANDLERS.UNHANDLED_REJECTION, (reason) => {
+                const error = reason instanceof Error ? reason : new Error(String(reason));
+                this.logger.error('Unhandled promise rejection:', error);
+                this.handleGlobalError(error, APP_SETTINGS.ERROR_HANDLERS.UNHANDLED_REJECTION);
             });
 
-            this.logger.info('Globální listenery byly inicializovány');
+            this.logger.info('Global listeners initialized');
         } catch (error) {
-            this.logger.error('Chyba při inicializaci globálních listenerů:', error);
+            this.logger.error('Error while initializing global listeners:', error);
             throw error;
         }
     }
 
-    /**
-     * Zpracování globálních chyb
-     * @private
-     */
     async handleGlobalError(error, type) {
         try {
-            // Logování detailů chyby
-            this.logger.error(`Globální chyba typu ${type}:`, {
-                message: error.message,
-                stack: error.stack,
-                type: error.name,
+            this.logger.error(`Global error of type ${type}:`, {
+                message: error?.message || String(error),
+                stack: error?.stack,
+                type: error?.name || typeof error,
                 timestamp: new Date().toISOString()
             });
-
-            // Zde můžeme přidat další logiku pro zpracování chyb
-            // například notifikace admina, restart služeb atd.
         } catch (handlingError) {
-            console.error('Kritická chyba při zpracování globální chyby:', handlingError);
+            console.error('Critical error while handling global error:', handlingError);
         }
     }
 
-    /**
-     * Inicializace aplikace
-     */
     async onInit() {
         try {
             await this.initializeLogger();
             await this.initializeGlobalListeners();
             await notifySunberryV3MigrationOnce(this.homey, this.logger);
-            
-            // Nastavení stavu aplikace
+
             this.setState('ready');
-            this.logger.info('SunberryApp byla úspěšně inicializována');
+            this.logger.info('Sunberry app initialized successfully');
         } catch (error) {
-            console.error('Kritická chyba při inicializaci aplikace:', error);
+            console.error('Critical error while initializing app:', error);
             throw error;
         }
     }
 
-    /**
-     * Nastavení stavu aplikace
-     * @private
-     */
     setState(state) {
         this.state = state;
-        this.logger.info('Stav aplikace změněn na:', { state });
+        this.logger.info('App state changed:', { state });
     }
 
-    /**
-     * Získání instance loggeru
-     */
     getLogger() {
         if (!this.logger) {
-            throw new Error('Logger není inicializován');
+            throw new Error('Logger is not initialized');
         }
         return this.logger;
     }
 
-    /**
-     * Zpracování událostí aplikace
-     */
     async handleAppEvent(eventType, data) {
         try {
-            this.logger.info('Zpracovávám událost aplikace:', { eventType, data });
-            
+            this.logger.info('Handling app event:', { eventType, data });
+
             switch (eventType) {
                 case 'deviceAdded':
                     await this.handleDeviceAdded(data);
@@ -137,30 +103,20 @@ class SunberryApp extends Homey.App {
                     await this.handleDeviceRemoved(data);
                     break;
                 default:
-                    this.logger.warn('Neznámý typ události:', { eventType });
+                    this.logger.warn('Unknown app event type:', { eventType });
             }
         } catch (error) {
-            this.logger.error('Chyba při zpracování události:', error);
+            this.logger.error('Error while handling app event:', error);
             throw error;
         }
     }
 
-    /**
-     * Zpracování přidání nového zařízení
-     * @private
-     */
     async handleDeviceAdded(device) {
-        this.logger.info('Nové zařízení bylo přidáno:', { deviceId: device.id });
-        // Zde můžeme přidat další logiku pro nová zařízení
+        this.logger.info('Device added:', { deviceId: device.id });
     }
 
-    /**
-     * Zpracování odebrání zařízení
-     * @private
-     */
     async handleDeviceRemoved(device) {
-        this.logger.info('Zařízení bylo odebráno:', { deviceId: device.id });
-        // Zde můžeme přidat logiku pro cleanup při odebrání zařízení
+        this.logger.info('Device removed:', { deviceId: device.id });
     }
 }
 

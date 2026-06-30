@@ -1,9 +1,9 @@
 {
   "name": "com.sunberry.local",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "main": "app.js",
   "scripts": {
-    "test": "node -e \"process.env.NODE_ENV='test'; const { spawnSync } = require('node:child_process'); const result = spawnSync(process.execPath, ['--test'], { stdio: 'inherit', env: process.env }); process.exit(result.status);\"",
+    "test": "node -e \"process.env.NODE_ENV='test'; const { spawnSync } = require('node:child_process'); const args = process.argv.slice(1); const result = spawnSync(process.execPath, ['--test', ...args], { stdio: 'inherit', env: process.env }); process.exit(result.status);\"",
     "build": "npx homey app build",
     "validate": "npx homey app validate"
   },

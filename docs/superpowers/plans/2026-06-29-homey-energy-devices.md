@@ -1,5 +1,7 @@
 # Homey Energy Devices Implementation Plan
 
+> **Historical note:** This is the original June 2026 implementation plan. It is kept as planning history and may contain older names such as `Sunberry Grid`, `measure_battery_kWh`, or `battery_max_discharging_power`. The current runtime and business source of truth is `docs/business/sunberry-devices.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the current single Sunberry device model with three Energy-aware devices: Sunberry Battery, Sunberry Solar, and Sunberry Grid with Backup telemetry.

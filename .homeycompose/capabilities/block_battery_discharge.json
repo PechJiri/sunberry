@@ -1,24 +1,23 @@
 {
-    "type": "boolean",
-    "title": {
-      "en": "Blocking Battery Discharge"
-    },
-    "getable": true,
-    "setable": true,
-    "insights": true,
-    "insightsTitleTrue": {
-      "en": "Stopping battery discharge"
-    },
+  "type": "boolean",
+  "title": {
+    "en": "Blocking Battery Discharge"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Stopping battery discharge"
+  },
   "insightsTitleFalse": {
-      "en": "Enabling battery discharge"
-    },
-    "uiComponent": "button",
-    "titleTrue": {
-      "en": "Battery discharging blocked"
-    },
-    "titleFalse": {
-      "en": "Battery is discharing normally"
-    },
-    "icon": "/assets/images/battery.svg"
-  }
-  
+    "en": "Enabling battery discharge"
+  },
+  "uiComponent": "button",
+  "titleTrue": {
+    "en": "Battery discharging blocked"
+  },
+  "titleFalse": {
+    "en": "Battery is discharging normally"
+  },
+  "icon": "/assets/images/battery.svg"
+}

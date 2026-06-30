@@ -1,0 +1,39 @@
+{
+  "title": {
+    "en": "Turn on Boiler with Power Routing mode"
+  },
+  "titleFormatted": {
+    "en": "Turn on Boiler [[power_routing]] Power Routing"
+  },
+  "hint": {
+    "en": "Sends the full all-week Boiler timer payload using the current minimum and maximum water temperature settings, overrides only Power Routing for this run, and then activates the Boiler."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=sunberry_boiler_1f|sunberry_boiler_3f"
+    },
+    {
+      "name": "power_routing",
+      "type": "dropdown",
+      "title": {
+        "en": "Power Routing"
+      },
+      "values": [
+        {
+          "id": "with",
+          "title": {
+            "en": "with"
+          }
+        },
+        {
+          "id": "without",
+          "title": {
+            "en": "without"
+          }
+        }
+      ]
+    }
+  ]
+}

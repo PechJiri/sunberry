@@ -23,6 +23,203 @@
     }
   },
   {
+    "id": "boiler_default_min_temperature",
+    "type": "number",
+    "label": {
+      "en": "Default Minimum Water Temperature"
+    },
+    "hint": {
+      "en": "Used in the all-week boiler timer sent when the Boiler is turned on. If a temperature sensor is connected, Sunberry heats at 100% below this temperature."
+    },
+    "value": 40,
+    "min": 0,
+    "max": 60
+  },
+  {
+    "id": "boiler_default_max_temperature",
+    "type": "number",
+    "label": {
+      "en": "Default Maximum Water Temperature"
+    },
+    "hint": {
+      "en": "Used in the all-week boiler timer sent when the Boiler is turned on. If a temperature sensor is connected, Sunberry turns off heating above this temperature."
+    },
+    "value": 60,
+    "min": 30,
+    "max": 80
+  },
+  {
+    "id": "boiler_power_routing",
+    "type": "checkbox",
+    "label": {
+      "en": "Power Routing"
+    },
+    "hint": {
+      "en": "When enabled, Sunberry tries to heat from available surplus PV power and respects battery discharge behavior. When disabled, the timer may also use grid energy."
+    },
+    "value": true
+  },
+  {
+    "id": "boiler_3f_power",
+    "type": "number",
+    "label": {
+      "en": "Boiler Power"
+    },
+    "hint": {
+      "en": "The configured total heater power of the three-phase boiler in W. Sunberry uses this value for boiler regulation and percentage calculations."
+    },
+    "value": 3000,
+    "min": 0
+  },
+  {
+    "id": "boiler_3f_regulation_offset",
+    "type": "number",
+    "label": {
+      "en": "Regulation Offset"
+    },
+    "hint": {
+      "en": "Minimum surplus power kept outside boiler heating. For example, with a 300 W offset and 450 W surplus, Sunberry can route about 150 W to the boiler."
+    },
+    "value": 300,
+    "min": 0
+  },
+  {
+    "id": "boiler_3f_regulation_type",
+    "type": "dropdown",
+    "label": {
+      "en": "Regulation Type"
+    },
+    "hint": {
+      "en": "Symmetric regulation uses one common output for L1+L2+L3. Asymmetric regulation switches each phase through its own configured output."
+    },
+    "value": "symmetric",
+    "values": [
+      {
+        "id": "symmetric",
+        "label": {
+          "en": "Symmetric"
+        }
+      },
+      {
+        "id": "asymmetric",
+        "label": {
+          "en": "Asymmetric"
+        }
+      }
+    ]
+  },
+  {
+    "id": "boiler_3f_output_l1",
+    "type": "dropdown",
+    "label": {
+      "en": "Output L1"
+    },
+    "hint": {
+      "en": "Digital output for L1. This is also used as the common output in symmetric regulation."
+    },
+    "value": "DO3",
+    "values": [
+      {
+        "id": "DO1",
+        "label": {
+          "en": "DO1"
+        }
+      },
+      {
+        "id": "DO2",
+        "label": {
+          "en": "DO2"
+        }
+      },
+      {
+        "id": "DO3",
+        "label": {
+          "en": "DO3"
+        }
+      },
+      {
+        "id": "DO4",
+        "label": {
+          "en": "DO4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "boiler_3f_output_l2",
+    "type": "dropdown",
+    "label": {
+      "en": "Output L2"
+    },
+    "hint": {
+      "en": "Digital output for L2 in asymmetric regulation. In symmetric regulation the app uses Output L1 for all phases."
+    },
+    "value": "DO3",
+    "values": [
+      {
+        "id": "DO1",
+        "label": {
+          "en": "DO1"
+        }
+      },
+      {
+        "id": "DO2",
+        "label": {
+          "en": "DO2"
+        }
+      },
+      {
+        "id": "DO3",
+        "label": {
+          "en": "DO3"
+        }
+      },
+      {
+        "id": "DO4",
+        "label": {
+          "en": "DO4"
+        }
+      }
+    ]
+  },
+  {
+    "id": "boiler_3f_output_l3",
+    "type": "dropdown",
+    "label": {
+      "en": "Output L3"
+    },
+    "hint": {
+      "en": "Digital output for L3 in asymmetric regulation. In symmetric regulation the app uses Output L1 for all phases."
+    },
+    "value": "DO3",
+    "values": [
+      {
+        "id": "DO1",
+        "label": {
+          "en": "DO1"
+        }
+      },
+      {
+        "id": "DO2",
+        "label": {
+          "en": "DO2"
+        }
+      },
+      {
+        "id": "DO3",
+        "label": {
+          "en": "DO3"
+        }
+      },
+      {
+        "id": "DO4",
+        "label": {
+          "en": "DO4"
+        }
+      }
+    ]
+  },
+  {
     "id": "enable_debug_logs",
     "type": "checkbox",
     "label": {

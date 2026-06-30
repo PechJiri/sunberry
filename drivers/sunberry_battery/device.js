@@ -4,6 +4,7 @@ const DataValidator = require('../../lib/DataValidator');
 const { updateEstimatedBatteryMeters } = require('../../lib/BatteryEnergyEstimator');
 const SunberryBatteryControl = require('../../lib/SunberryBatteryControl');
 const SunberryClient = require('../../lib/SunberryClient');
+const { toSunberryBaseUrl } = require('../../lib/SunberryHostResolver');
 const { normalizeBatteryMeasurements } = require('../../lib/SunberryMeasurements');
 const { SunberryPollingDevice, applyCapabilityUpdates } = require('../../lib/SunberryPollingDevice');
 
@@ -18,7 +19,7 @@ class SunberryBatteryDevice extends SunberryPollingDevice {
     }
 
     createClient() {
-        return new SunberryClient({ baseUrl: `http://${this.getSetting('ip_address')}` });
+        return new SunberryClient({ baseUrl: toSunberryBaseUrl(this.getSetting('ip_address')) });
     }
 
     async pollOnce() {

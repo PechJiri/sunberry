@@ -1,7 +1,7 @@
-The app provides basic data and control for your Sunberry module (SolidSun version Unipy 103 S). It primarily offers data on consumption for each phase, total consumption, and basic actions to control the battery.
-All this works in combination with the GoodWe ET inverter (a combination installed by SolidSun in the Czech Republic).
-I have asked SolidSun for documentation, and if they provide it, I will try to add more actions, though I may not always have the means to test them.
+Sunberry provides local Homey integration for the Sunberry module used with SolidSun photovoltaic installations, including GoodWe ET inverter based systems.
 
-Version 3.0.0 is a breaking change. The app exposes Sunberry as three Homey devices: Sunberry Battery, Sunberry Solar, and Sunberry Home Consumption. Existing users of the old all-in-one device must re-pair their Sunberry host after upgrading.
+Version 3 is a breaking change. The old all-in-one Sunberry device must be removed and replaced with the new split devices: Sunberry Battery, Sunberry Solar, Sunberry Home Consumption and Sunberry Smart Meter. Optional Sunberry Smart Contact and Sunberry Boiler devices can be added when those features are enabled by the installer in the Sunberry portal.
 
-If you have problem with getting data or sending data to your device, try setting device IP adress in device settings.
+The Battery device reports battery state, stored energy, charge/discharge power, estimated charged/discharged kWh, temperature, and controls for force charging and blocking discharge. The Solar device reports PV1/PV2 production and estimated generated kWh. Home Consumption reports GRID and BACKUP phase loads as telemetry only, while Smart Meter estimates the net grid import/export for Homey Energy from house load, solar production and battery power. Boiler devices report heater power, estimated kWh, optional water temperature, and can activate a full-week timer with or without Power Routing. Smart Contact reports contact state and can activate a full-week timer in the selected Sunberry mode.
+
+Most cumulative kWh values are estimated from current W values and the polling interval because the Sunberry portal does not expose billing-grade cumulative meters for those roles. If data polling or control requests fail, set the real Sunberry IP address in each device settings instead of relying on sunberry.local.

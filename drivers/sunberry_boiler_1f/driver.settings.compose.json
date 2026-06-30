@@ -23,6 +23,135 @@
     }
   },
   {
+    "id": "boiler_default_min_temperature",
+    "type": "number",
+    "label": {
+      "en": "Default Minimum Water Temperature"
+    },
+    "hint": {
+      "en": "Used in the all-week boiler timer sent when the Boiler is turned on. If a temperature sensor is connected, Sunberry heats at 100% below this temperature."
+    },
+    "value": 40,
+    "min": 0,
+    "max": 60
+  },
+  {
+    "id": "boiler_default_max_temperature",
+    "type": "number",
+    "label": {
+      "en": "Default Maximum Water Temperature"
+    },
+    "hint": {
+      "en": "Used in the all-week boiler timer sent when the Boiler is turned on. If a temperature sensor is connected, Sunberry turns off heating above this temperature."
+    },
+    "value": 60,
+    "min": 30,
+    "max": 80
+  },
+  {
+    "id": "boiler_power_routing",
+    "type": "checkbox",
+    "label": {
+      "en": "Power Routing"
+    },
+    "hint": {
+      "en": "When enabled, Sunberry tries to heat from available surplus PV power and respects battery discharge behavior. When disabled, the timer may also use grid energy."
+    },
+    "value": true
+  },
+  {
+    "id": "boiler_1f_power",
+    "type": "number",
+    "label": {
+      "en": "Boiler Power"
+    },
+    "hint": {
+      "en": "The configured total heater power of the single-phase boiler in W. Sunberry uses this value for boiler regulation and percentage calculations."
+    },
+    "value": 3000,
+    "min": 0
+  },
+  {
+    "id": "boiler_1f_regulation_offset",
+    "type": "number",
+    "label": {
+      "en": "Regulation Offset"
+    },
+    "hint": {
+      "en": "Minimum surplus power kept outside boiler heating. For example, with a 300 W offset and 450 W surplus, Sunberry can route about 150 W to the boiler."
+    },
+    "value": 300,
+    "min": 0
+  },
+  {
+    "id": "boiler_1f_phase_connected",
+    "type": "dropdown",
+    "label": {
+      "en": "Connected Boiler Phase"
+    },
+    "hint": {
+      "en": "Physical phase used by the single-phase boiler. The app sends no_phases=1 and maps this phase to the selected digital output."
+    },
+    "value": "R",
+    "values": [
+      {
+        "id": "R",
+        "label": {
+          "en": "L1"
+        }
+      },
+      {
+        "id": "S",
+        "label": {
+          "en": "L2"
+        }
+      },
+      {
+        "id": "T",
+        "label": {
+          "en": "L3"
+        }
+      }
+    ]
+  },
+  {
+    "id": "boiler_1f_output",
+    "type": "dropdown",
+    "label": {
+      "en": "Connected Output"
+    },
+    "hint": {
+      "en": "The digital output that switches the selected boiler phase. Other hidden phase output fields are sent as DO3 for the single-phase setup."
+    },
+    "value": "DO1",
+    "values": [
+      {
+        "id": "DO1",
+        "label": {
+          "en": "DO1"
+        }
+      },
+      {
+        "id": "DO2",
+        "label": {
+          "en": "DO2"
+        }
+      },
+      {
+        "id": "DO3",
+        "label": {
+          "en": "DO3"
+        }
+      },
+      {
+        "id": "DO4",
+        "label": {
+          "en": "DO4"
+        }
+      }
+    ]
+  },
+  {
     "id": "enable_debug_logs",
     "type": "checkbox",
     "label": {

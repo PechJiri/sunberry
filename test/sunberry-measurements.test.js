@@ -108,6 +108,7 @@ test('normalizeBoilerMeasurements maps single-phase boiler total power and conne
     total_power: 500,
   }, { phaseCount: 1 }), {
     measure_power: 500,
+    boiler_temperature_sensor_connected: true,
     measure_temperature: 41.2,
   });
 });
@@ -124,6 +125,8 @@ test('normalizeBoilerMeasurements maps three-phase boiler total and phase powers
     total_power: 600,
   }, { phaseCount: 3 }), {
     measure_power: 600,
+    boiler_temperature_sensor_connected: false,
+    measure_temperature: 0,
     measure_L1: 100,
     measure_L2: 200,
     measure_L3: 300,

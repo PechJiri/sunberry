@@ -10,7 +10,34 @@ All Sunberry Homey devices represent one physical Sunberry unit. The app splits 
 - `Sunberry Solar`
 - `Sunberry Home Consumption`
 - `Sunberry Smart Meter`
-- `Sunberry Smart Contact`
+- `Sunberry Smart Contact` when the optional Sunberry feature is enabled
+- `Sunberry Boiler 1F` or `Sunberry Boiler 3F` when the optional Sunberry feature is enabled
+
+## Homey SDK And Energy Review Notes
+
+The implementation was reviewed against the Homey Apps SDK v3 and Homey Energy documentation:
+
+- Energy model reference: https://apps.developer.homey.app/the-basics/devices/energy
+- Device and capability reference: https://apps.developer.homey.app/the-basics/devices/capabilities
+- SDK v3 reference: https://apps-sdk-v3.developer.homey.app/
+
+Reviewed decisions:
+
+- The physical Sunberry unit is intentionally split into separate Homey devices because Homey Energy models different energy roles through device classes and energy metadata.
+- `Sunberry Battery` uses device class `battery`, `energy.homeBattery`, signed `measure_power`, and imported/exported cumulative battery meters.
+- `Sunberry Solar` uses device class `solarpanel`, positive `measure_power`, and `meterPowerExportedCapability: meter_power`. In Homey terminology this means energy exported from the Solar device into the Homey Energy model, not necessarily exported to the public grid.
+- `Sunberry Smart Meter` is the only device that reports estimated public-grid import/export to Homey Energy. It uses Homey's cumulative import/export meter metadata and computes net power from house load, solar production and battery power.
+- `Sunberry Home Consumption` deliberately does not report Energy import/export meters because the Sunberry GRID page represents house load by phase, not a verified utility grid meter.
+- `Sunberry Battery` deliberately does not implement `target_power`. Sunberry can force charging and block discharge, but it cannot accept the full Homey target-power contract of charge, discharge and idle setpoints.
+- Optional Smart Contact and Boiler devices use standard `onoff` only where Homey control maps to a concrete Sunberry active-state request. Their timer and settings payloads are always posted as complete Sunberry form payloads.
+- Custom telemetry capabilities use Homey's custom capability model and are named for user-facing meaning, while standard capabilities are used for Homey Energy where the semantics match.
+- Package, lockfile, Homey compose manifest, generated manifest and Homey changelog versions are kept aligned by `test/homey-metadata.test.js`.
+
+Known limits after review:
+
+- Estimated kWh values are derived from instantaneous W and polling intervals. They are suitable for Homey Energy visualization, not billing-grade metering.
+- Optional Sunberry pages can be disabled by the installer. Pairing those optional devices will fail on installations where the page is not present.
+- Existing users upgrading from the old all-in-one device must add the split devices and move Flows manually.
 
 The user can enter either the real device IP address or `sunberry.local` during pairing. When `sunberry.local` is used, the app resolves it to an IPv4 address and stores that IP in the paired Homey device. This avoids runtime failures when Homey's app runtime cannot resolve `.local` names reliably.
 
@@ -377,25 +404,100 @@ Homey devices:
 - Driver: `sunberry_boiler_1f`
 - Name: `Sunberry Boiler 1F`
 - Class: `sensor`
-- Capabilities: `measure_power`, `measure_temperature`
+- Capabilities: `onoff`, `measure_power`, `meter_power`, `boiler_temperature_sensor_connected`, `measure_temperature`
 
 - Driver: `sunberry_boiler_3f`
 - Name: `Sunberry Boiler 3F`
 - Class: `sensor`
-- Capabilities: `measure_power`, `measure_temperature`, `measure_L1`, `measure_L2`, `measure_L3`
+- Capabilities: `onoff`, `measure_power`, `meter_power`, `boiler_temperature_sensor_connected`, `measure_temperature`, `measure_L1`, `measure_L2`, `measure_L3`
 
 Business meaning:
 
-The Boiler devices map the optional Sunberry `Bojler` feature. The Sunberry values window reports water temperature when a temperature sensor is connected and current heater power in W plus percent of the configured maximum heater power. If no temperature sensor is connected, Sunberry shows text equivalent to `No temperature sensor connected`; the app then does not update `measure_temperature`.
+The Boiler devices map the optional Sunberry `Bojler` feature. The Sunberry values window reports water temperature when a temperature sensor is connected and current heater power in W plus percent of the configured maximum heater power. If no temperature sensor is connected, Sunberry shows text equivalent to `No temperature sensor connected`; the app exposes that as `boiler_temperature_sensor_connected = NO` and publishes `measure_temperature = 0 C`.
 
 The app intentionally exposes two separate boiler device types:
 
 - `Sunberry Boiler 1F` is for single-phase boilers. It reports the one heater row as standard `measure_power`.
 - `Sunberry Boiler 3F` is for three-phase boilers. It reports standard `measure_power` as the total of L1, L2, and L3, and also exposes per-phase power through `measure_L1`, `measure_L2`, and `measure_L3`.
 
+Mapped values:
+
+| Sunberry value | Homey capability | Notes |
+| --- | --- | --- |
+| Heater power, single-phase | `measure_power` | 1F total current boiler power |
+| L1 + L2 + L3 heater power | `measure_power` | 3F total current boiler power |
+| Integrated total heater power | `meter_power` | Estimated cumulative boiler kWh |
+| Temperature sensor present | `boiler_temperature_sensor_connected` | Custom boolean sensor shown as `Temperature sensor connected`. `YES` = temperature value is present, `NO` = Sunberry reports no temperature sensor connected. |
+| Water temperature | `measure_temperature` | Standard Homey temperature. Shows the reported temperature when connected, otherwise `0 C`. |
+| 3F L1 heater power | `measure_L1` | 3F only |
+| 3F L2 heater power | `measure_L2` | 3F only |
+| 3F L3 heater power | `measure_L3` | 3F only |
+
+Boiler cumulative energy behavior:
+
+- `meter_power` is estimated by integrating the standard total `measure_power` value between successful polls.
+- For `Sunberry Boiler 1F`, `measure_power` is the single heater power reported by Sunberry.
+- For `Sunberry Boiler 3F`, `measure_power` is the total heater power, calculated as `L1 + L2 + L3`.
+- Negative or invalid heater power samples are treated as `0 W`, because the boiler is a consumer and does not generate electricity.
+- The first successful sample initializes the estimator and does not add kWh.
+- The app skips integration after long polling gaps to avoid artificial jumps after downtime or network outages.
+- The cumulative boiler kWh value is an estimate derived from instantaneous W and the polling interval. It is useful for Homey Energy visualization, but it is not a billing-grade meter reading from Sunberry.
+
+Control behavior:
+
+- Homey's standard `onoff` capability controls whether the Sunberry Boiler function is active.
+- Turning `onoff` on first posts one all-week timer to `/boiler/timers`, then calls `/boiler/boiler_active_change/True`.
+- Turning `onoff` off calls `/boiler/boiler_active_change/False`.
+- The Flow action `Turn on Boiler with Power Routing mode` is available for both `Sunberry Boiler 1F` and `Sunberry Boiler 3F`. It posts the same all-week timer and activates the boiler, but overrides only Power Routing for that run with either `with` or `without`.
+- The app configures a single timer from `00:00` to `23:59` for all days of the week.
+- The timer payload always includes minimum water temperature, maximum water temperature, all weekday fields, and the submit field.
+- `Power Routing` follows the Sunberry checkbox behavior. When enabled, the timer payload includes `power_routing_0=on`. When disabled, the checkbox field is omitted, which is how the Sunberry form submits an unchecked checkbox.
+- The app obtains a session cookie from `/boiler/settings` before posting timers or changing the active state.
+
+Advanced settings behavior:
+
+- `Default Minimum Water Temperature`: default minimum temperature for the all-week timer. Allowed range is 0-60 C.
+- `Default Maximum Water Temperature`: default maximum temperature for the all-week timer. Allowed range is 30-80 C.
+- `Power Routing`: when enabled, Sunberry tries to heat using available surplus power and avoids heating while the battery is discharging. When disabled, Sunberry may also use grid energy according to its own boiler logic.
+- Changing one of these settings posts a complete all-week timer payload to `/boiler/timers` without changing the active switch state.
+- The Flow action override does not persist back into advanced settings. It only changes the timer payload used for that activation.
+- The minimum temperature must not be higher than the maximum temperature.
+
+Single-phase installation settings:
+
+The `Sunberry Boiler 1F` device also manages the single-phase installation part of the Sunberry boiler settings form. Changing one of these settings posts a complete payload to `/boiler/settings`:
+
+- `Boiler Power`: total configured heater power in W.
+- `Regulation Offset`: minimum surplus power kept outside boiler heating. Sunberry routes only surplus above this offset to the boiler.
+- `Connected Boiler Phase`: physical phase used by the boiler. Homey shows this as `L1`, `L2`, or `L3`, and the portal payload uses `R`, `S`, or `T`.
+- `Connected Output`: digital output `DO1` to `DO4` used to switch the selected phase.
+
+For the 1F device the app always sends `no_phases=1` and `regulation_type=asymmetric`. The selected output is written only to the output field matching the selected connected phase (`output_R`, `output_S`, or `output_T`). The other hidden phase output fields are sent as `DO3`, matching the fixed single-phase behavior used by the app.
+
+Three-phase installation settings:
+
+The `Sunberry Boiler 3F` device manages the three-phase installation part of the Sunberry boiler settings form. Changing one of these settings posts a complete payload to `/boiler/settings`:
+
+- `Boiler Power`: total configured heater power in W.
+- `Regulation Offset`: minimum surplus power kept outside boiler heating.
+- `Regulation Type`: `Symmetric` or `Asymmetric`.
+- `Output L1`, `Output L2`, `Output L3`: digital outputs `DO1` to `DO4`.
+
+For the 3F device the app always sends `no_phases=3` and `phase_connected=R`, because the connected phase field is not meaningful for a three-phase boiler. In symmetric regulation the app sends the `Output L1` value to all three output fields (`output_R`, `output_S`, and `output_T`), matching the Sunberry behavior where all phases are switched together. In asymmetric regulation the app sends `Output L1` to `output_R`, `Output L2` to `output_S`, and `Output L3` to `output_T`.
+
+Sunberry mode behavior:
+
+- Without a connected temperature sensor and with Power Routing enabled, Sunberry disables heating while the battery is discharging. Otherwise it uses recent overflow measurements and sets boiler power to use the allowed surplus power after the configured offset.
+- Without a connected temperature sensor and with Power Routing disabled, Sunberry behaves like a timer-controlled standby mode: during the active timer it can heat at 100%.
+- With a connected temperature sensor and with Power Routing enabled, Sunberry heats at 100% below the minimum temperature, turns off above the maximum temperature, and between those limits uses surplus-aware routing when the battery is not discharging.
+- With a connected temperature sensor and with Power Routing disabled, Sunberry turns off above maximum temperature, heats at 100% below minimum temperature, and between those limits adjusts power gradually to settle near the middle of the configured interval.
+- A missing temperature sensor is valid. In that case the Homey app keeps polling power and `onoff`, sets `boiler_temperature_sensor_connected` to `NO`, and sets standard `measure_temperature` to `0 C` so Homey does not keep showing a stale temperature.
+
 Limitations:
 
-- The Boiler devices are telemetry-only in this version. They do not control boiler settings or schedules.
+- The app only manages a single all-week timer for Homey control. It does not manage multiple boiler timers or per-day schedules.
+- The app supports the basic 1F and 3F installation settings described above. It does not manage multiple physical boiler profiles beyond the selected Homey device type.
+- The app does not currently mirror the Sunberry active switch from the settings page during polling. The `onoff` state reflects Homey control actions.
 - The app does not infer whether a physical installation is 1F or 3F during pairing. The user should add the device type that matches the Sunberry boiler configuration.
 - The Boiler page may not exist on installations where the installer did not enable the feature. Pairing the Boiler device will fail for those installations.
 ## Maintenance Notes
@@ -404,6 +506,10 @@ Limitations:
 - Smart Contact contact-state parsing is covered by `test/sunberry-parsers.test.js`.
 - Boiler value parsing is covered by `test/sunberry-parsers.test.js`.
 - Boiler Homey metadata is covered by `test/sunberry-boiler-device-model.test.js`.
+- Boiler control payloads are covered by `test/boiler-control.test.js`.
+- Boiler Homey settings behavior is covered by `test/boiler-device-settings.test.js`.
+- Boiler Flow card behavior is covered by `test/boiler-flow-cards.test.js` and `test/boiler-flow-compose.test.js`.
+- Boiler kWh estimation behavior is covered by `test/boiler-energy-estimator.test.js`.
 - Battery charged/discharged kWh estimation behavior is covered by `test/battery-energy-estimator.test.js`.
 - Home Consumption Energy exclusion behavior is covered by `test/sunberry-grid-energy-model.test.js`.
 - Smart Meter net import/export estimation behavior is covered by `test/energy-balance-estimator.test.js`.
@@ -414,3 +520,5 @@ Limitations:
 - Request queue behavior is covered by `test/sunberry-client.test.js`.
 - Request throttling behavior is covered by `test/sunberry-request-queue.test.js`.
 - Pairing and `.local` resolution behavior is covered by `test/sunberry-pairing.test.js`.
+- Host normalization for plain hostnames, IP addresses and `http://...` settings is covered by `test/sunberry-host-resolver.test.js`.
+- Homey/package/changelog version consistency is covered by `test/homey-metadata.test.js`.

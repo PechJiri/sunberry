@@ -1,0 +1,16 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Temperature sensor connected"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "titleTrue": {
+    "en": "YES"
+  },
+  "titleFalse": {
+    "en": "NO"
+  }
+}
