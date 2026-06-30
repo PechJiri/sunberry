@@ -165,6 +165,12 @@ Signed total behavior:
 
 The cumulative kWh values are estimates derived from instantaneous W and the polling interval. They are useful for Homey Energy visualization, but they are not billing-grade meter readings.
 
+Flow behavior:
+
+- Grid uses `meter_power.imported` and `meter_power.exported` sub-capabilities so Homey Energy can distinguish import from export.
+- Homey does not automatically expose the same generic `Power meter changed` system Flow card for these sub-capabilities as it does for a plain `meter_power` capability.
+- The app therefore provides dedicated Grid Flow triggers for changes to estimated import and export meters instead of adding a duplicate plain `meter_power` capability that would confuse the Energy model.
+
 ### BACKUP Window
 
 Business meaning:

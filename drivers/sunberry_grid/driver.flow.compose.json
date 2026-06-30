@@ -1,0 +1,42 @@
+{
+  "triggers": [
+    {
+      "id": "grid_import_meter_changed",
+      "title": {
+        "en": "Grid import meter changed"
+      },
+      "hint": {
+        "en": "Triggers when the estimated cumulative grid import energy changes."
+      },
+      "tokens": [
+        {
+          "name": "energy",
+          "type": "number",
+          "title": {
+            "en": "Energy"
+          },
+          "example": 1.5
+        }
+      ]
+    },
+    {
+      "id": "grid_export_meter_changed",
+      "title": {
+        "en": "Grid export meter changed"
+      },
+      "hint": {
+        "en": "Triggers when the estimated cumulative grid export energy changes."
+      },
+      "tokens": [
+        {
+          "name": "energy",
+          "type": "number",
+          "title": {
+            "en": "Energy"
+          },
+          "example": 0.25
+        }
+      ]
+    }
+  ]
+}
