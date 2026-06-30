@@ -116,6 +116,14 @@ class SunberrySmartContactDevice extends SunberryPollingDevice {
         };
     }
 
+    getSmartContactTimerSettingsWithOverride(args = {}) {
+        const mode = args.mode || this.getSetting('smart_contact_timer_mode') || 'battery';
+        return this.getSmartContactTimerSettings({
+            ...this.getSettings(),
+            smart_contact_timer_mode: mode
+        });
+    }
+
     getSmartContactSettings(settings = this.getSettings()) {
         return {
             power: validateNumber(settings.smart_contact_power, 'Switched load power', { min: 0 }),
@@ -129,12 +137,18 @@ class SunberrySmartContactDevice extends SunberryPollingDevice {
 
     async onActiveChanged(value) {
         if (value) {
-            await this.controlApi.enable(this.getSmartContactTimerSettings());
+            await this.turnOnSmartContact();
         } else {
             await this.controlApi.disable();
+            await this.setCapabilityValue('onoff', false);
         }
 
-        await this.setCapabilityValue('onoff', value);
+        return true;
+    }
+
+    async turnOnSmartContact(args = {}) {
+        await this.controlApi.enable(this.getSmartContactTimerSettingsWithOverride(args));
+        await this.setCapabilityValue('onoff', true);
         return true;
     }
 }

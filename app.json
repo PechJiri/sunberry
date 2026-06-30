@@ -278,6 +278,58 @@
         "titleFormatted": {
           "en": "Turn on force battery charging with [[limit]] W"
         }
+      },
+      {
+        "id": "turn_on_smart_contact_with_mode",
+        "title": {
+          "en": "Turn on Smart Contact with mode"
+        },
+        "titleFormatted": {
+          "en": "Turn on Smart Contact with [[mode]] mode"
+        },
+        "hint": {
+          "en": "Sends the full all-week Smart Contact timer payload using the current start/stop settings, overrides only the selected mode, and then activates Smart Contact."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=sunberry_smart_contact"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "title": {
+              "en": "Mode"
+            },
+            "values": [
+              {
+                "id": "battery",
+                "title": {
+                  "en": "Battery"
+                }
+              },
+              {
+                "id": "pv_overflow",
+                "title": {
+                  "en": "PV overflow"
+                }
+              },
+              {
+                "id": "combined",
+                "title": {
+                  "en": "Combined"
+                }
+              },
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -533,7 +585,7 @@
             "en": "Smart Contact timer mode"
           },
           "hint": {
-            "en": "Choose how Sunberry should decide when the timer may turn the contact on."
+            "en": "Battery uses SOC and minimum runtime. PV overflow turns on when exported power is above switched load plus overflow offset. Combined allows either Battery or PV overflow behavior. Off disables the timer but keeps its settings."
           },
           "value": "battery",
           "values": [
@@ -570,7 +622,7 @@
             "en": "Switched load power"
           },
           "hint": {
-            "en": "Total switched load power in W sent to Sunberry Smart Contact settings."
+            "en": "Total switched load power in W. Sunberry uses it to estimate minimum battery energy and to calculate PV overflow threshold together with Overflow offset."
           },
           "value": 1200,
           "min": 0
@@ -582,7 +634,7 @@
             "en": "Overflow offset"
           },
           "hint": {
-            "en": "Optional overflow offset in W. Leave empty to send an empty value."
+            "en": "Optional W margin for PV overflow modes. The contact turns on when overflow is higher than switched load power plus overflow offset."
           },
           "value": ""
         },
@@ -593,7 +645,7 @@
             "en": "Minimum battery SOC"
           },
           "hint": {
-            "en": "Minimum battery SOC in percent."
+            "en": "Minimum battery SOC in percent. Battery modes turn off at this SOC when SOC priority is used."
           },
           "value": 90,
           "min": 0,
@@ -606,7 +658,7 @@
             "en": "Minimum closed time"
           },
           "hint": {
-            "en": "Minimum time the contact should remain closed, in minutes."
+            "en": "Minimum time the contact should remain turned on, in minutes. Time priority keeps the contact on for this time even if SOC or overflow changes."
           },
           "value": 20,
           "min": 0
@@ -655,7 +707,7 @@
             "en": "Default Battery Mode Priority"
           },
           "hint": {
-            "en": "Choose whether Battery mode prioritizes battery SOC or time."
+            "en": "SOC priority may turn off when battery reaches Minimum battery SOC. Time priority keeps the contact on until Minimum closed time has elapsed. This setting does not affect pure PV overflow mode."
           },
           "value": "soc",
           "values": [

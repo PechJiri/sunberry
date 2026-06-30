@@ -1,8 +1,9 @@
 'use strict';
 
+const { registerSmartContactFlowCards } = require('../../lib/SmartContactFlowCards');
 const { createSunberryDriver } = require('../../lib/SunberrySplitDriver');
 
-module.exports = createSunberryDriver({
+const BaseDriver = createSunberryDriver({
     type: 'smart_contact',
     name: 'Sunberry Smart Contact',
     testMethod: 'getSmartContactValues',
@@ -18,3 +19,12 @@ module.exports = createSunberryDriver({
         smart_contact_priority: 'soc'
     }
 });
+
+class SunberrySmartContactDriver extends BaseDriver {
+    async onInit() {
+        await super.onInit();
+        registerSmartContactFlowCards(this.homey);
+    }
+}
+
+module.exports = SunberrySmartContactDriver;

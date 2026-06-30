@@ -1,0 +1,51 @@
+{
+  "actions": [
+    {
+      "id": "turn_on_smart_contact_with_mode",
+      "title": {
+        "en": "Turn on Smart Contact with mode"
+      },
+      "titleFormatted": {
+        "en": "Turn on Smart Contact with [[mode]] mode"
+      },
+      "hint": {
+        "en": "Sends the full all-week Smart Contact timer payload using the current start/stop settings, overrides only the selected mode, and then activates Smart Contact."
+      },
+      "args": [
+        {
+          "name": "mode",
+          "type": "dropdown",
+          "title": {
+            "en": "Mode"
+          },
+          "values": [
+            {
+              "id": "battery",
+              "title": {
+                "en": "Battery"
+              }
+            },
+            {
+              "id": "pv_overflow",
+              "title": {
+                "en": "PV overflow"
+              }
+            },
+            {
+              "id": "combined",
+              "title": {
+                "en": "Combined"
+              }
+            },
+            {
+              "id": "off",
+              "title": {
+                "en": "Off"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

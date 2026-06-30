@@ -287,6 +287,7 @@ Control behavior:
 - Homey's standard `onoff` capability controls whether the Sunberry Smart Contact function is active.
 - Turning `onoff` on posts one all-week timer to `/heat_pump/timers` and then calls `/heat_pump/active_change/True`.
 - Turning `onoff` off calls `/heat_pump/active_change/False`.
+- The custom Flow action `Turn on Smart Contact with mode` posts a complete all-week timer payload using the device's current start/stop settings, overrides only the selected mode, and then calls `/heat_pump/active_change/True`.
 - The timer always uses all days of the week. Its start time, stop time, and mode are configured in the device advanced settings.
 
 Advanced settings behavior:
@@ -295,17 +296,17 @@ The Sunberry settings form is intentionally sent separately from activation. Whe
 
 | Homey setting | Sunberry field | Notes |
 | --- | --- | --- |
-| Smart Contact timer start | `start_0` | Used only when turning the device on. Format `HH:MM`. |
-| Smart Contact timer stop | `stop_0` | Used only when turning the device on. Format `HH:MM`. |
+| Smart Contact timer start | `start_0` | Used when turning the device on and by the Flow action. Format `HH:MM`. |
+| Smart Contact timer stop | `stop_0` | Used when turning the device on and by the Flow action. Format `HH:MM`. |
 | Smart Contact timer mode | `mode_0` | Dropdown. Allowed values: `battery`, `pv_overflow`, `combined`, `off`. |
-| Switched load power | `power` | Total switched load power in W. |
-| Overflow offset | `overflow_offset` | Optional W offset. Empty value is preserved as empty. |
-| Minimum battery SOC | `soc_min` | Percent, 0-100. |
-| Minimum closed time | `min_time` | Minutes. |
+| Switched load power | `power` | Total switched load power in W. Used for battery energy estimation and PV overflow threshold calculation. |
+| Overflow offset | `overflow_offset` | Optional W offset for PV overflow modes. The PV overflow threshold is switched load power plus overflow offset. |
+| Minimum battery SOC | `soc_min` | Percent, 0-100. Battery modes use this as the lower turn-off boundary when SOC priority is selected. |
+| Minimum closed time | `min_time` | Minutes. Time-priority modes keep the contact on until this time has elapsed. |
 | Digital output | `output` | Dropdown. Allowed values: `DO1`, `DO2`, `DO3`, `DO4`. |
-| Default Battery Mode Priority | `priority` | Dropdown. Allowed values: `soc`, `time`. |
+| Default Battery Mode Priority | `priority` | Dropdown. Allowed values: `soc`, `time`. Does not affect pure PV overflow mode. |
 
-Timer settings are also sent as a complete form payload. When the timer start, timer stop, or timer mode setting changes, the app posts the complete all-week timer payload to `/heat_pump/timers` without changing the active switch state. When the user turns `onoff` on, the app posts the same complete timer payload first and then calls `/heat_pump/active_change/True`.
+Timer settings are also sent as a complete form payload. When the timer start, timer stop, or timer mode setting changes, the app posts the complete all-week timer payload to `/heat_pump/timers` without changing the active switch state. When the user turns `onoff` on, or uses the Flow action, the app posts the same complete timer payload first and then calls `/heat_pump/active_change/True`.
 
 Timer mode mapping:
 
@@ -317,6 +318,45 @@ Timer mode mapping:
 | Baterie | `battery` |
 
 The default timer payload is full-day battery mode: `start_0=00:00`, `stop_0=23:59`, `mode_0=battery`, with all days of the week enabled.
+
+### Smart Contact Modes
+
+Mode 1: Battery mode with Default Battery Mode Priority = SOC.
+
+- Sunberry turns the contact on when current SOC is above Minimum battery SOC by enough energy to run the switched load for Minimum closed time.
+- Sunberry turns the contact off when battery SOC drops to Minimum battery SOC.
+- This is suitable for loads that tolerate frequent switching.
+
+Mode 2: Battery mode with Default Battery Mode Priority = Time.
+
+- Sunberry turns the contact on when current SOC is above Minimum battery SOC by enough energy to run the switched load for Minimum closed time.
+- Sunberry turns the contact off only after Minimum closed time has elapsed.
+- This is suitable for loads that should not switch frequently.
+
+Mode 3: PV overflow mode.
+
+- Default Battery Mode Priority does not affect this mode.
+- Sunberry turns the contact on when current overflow is higher than Overflow offset plus Switched load power.
+- Sunberry turns the contact off after overflow ends and Minimum closed time has elapsed.
+- This is suitable for loads that tolerate frequent switching.
+
+Mode 4: Combined mode with Default Battery Mode Priority = SOC.
+
+- Sunberry can turn the contact on from battery logic when current SOC is high enough to run the switched load for Minimum closed time.
+- Sunberry turns the contact off when battery SOC drops to Minimum battery SOC or when overflow is lost.
+- Sunberry can also turn the contact on when current overflow is higher than Overflow offset plus Switched load power.
+- This is suitable for loads that tolerate frequent switching.
+
+Mode 5: Combined mode with Default Battery Mode Priority = Time.
+
+- Sunberry can turn the contact on from battery logic when current SOC is high enough to run the switched load for Minimum closed time.
+- Sunberry turns the contact off only after Minimum closed time has elapsed.
+- Sunberry can also turn the contact on when current overflow is higher than Overflow offset plus Switched load power.
+- This is suitable for loads that should not switch frequently.
+
+Mode 6: Off mode.
+
+- Sunberry disables the timer while preserving all timer and Smart Contact settings.
 
 Limitations:
 

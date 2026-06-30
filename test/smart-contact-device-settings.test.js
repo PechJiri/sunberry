@@ -64,3 +64,28 @@ test('smart contact timer update merges partial Homey changes into a complete ti
     mode: 'battery',
   }]);
 });
+
+test('turnOnSmartContact uses current timer settings and overrides only requested mode', async () => {
+  const calls = [];
+  const capabilityWrites = [];
+  const device = new SunberrySmartContactDevice();
+
+  device.getSettings = () => ({
+    smart_contact_timer_start: '06:00',
+    smart_contact_timer_stop: '21:00',
+    smart_contact_timer_mode: 'battery',
+  });
+  device.controlApi = {
+    enable: async (settings) => calls.push(settings),
+  };
+  device.setCapabilityValue = async (capability, value) => capabilityWrites.push({ capability, value });
+
+  await device.turnOnSmartContact({ mode: 'combined' });
+
+  assert.deepEqual(calls, [{
+    start: '06:00',
+    stop: '21:00',
+    mode: 'combined',
+  }]);
+  assert.deepEqual(capabilityWrites, [{ capability: 'onoff', value: true }]);
+});

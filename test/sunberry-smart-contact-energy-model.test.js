@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const smartContactDriver = require('../drivers/sunberry_smart_contact/driver.compose.json');
+const smartContactFlow = require('../drivers/sunberry_smart_contact/driver.flow.compose.json');
 const smartContactSettings = require('../drivers/sunberry_smart_contact/driver.settings.compose.json');
 const smartContactClosedCapability = require('../.homeycompose/capabilities/smart_contact_closed.json');
 
@@ -47,5 +48,29 @@ test('smart contact enum settings use dropdown selects', () => {
   assert.deepEqual(settingsById.smart_contact_priority.values.map(value => value.id), [
     'soc',
     'time',
+  ]);
+});
+
+test('smart contact settings include business behavior hints', () => {
+  const settingsById = Object.fromEntries(smartContactSettings.map(setting => [setting.id, setting]));
+
+  assert.match(settingsById.smart_contact_timer_mode.hint.en, /Battery uses SOC/);
+  assert.match(settingsById.smart_contact_timer_mode.hint.en, /PV overflow/);
+  assert.match(settingsById.smart_contact_power.hint.en, /PV overflow threshold/);
+  assert.match(settingsById.smart_contact_overflow_offset.hint.en, /switched load power plus overflow offset/);
+  assert.match(settingsById.smart_contact_min_time.hint.en, /Time priority/);
+  assert.match(settingsById.smart_contact_priority.hint.en, /pure PV overflow mode/);
+});
+
+test('smart contact exposes flow action for turning on with a selected mode', () => {
+  const action = smartContactFlow.actions.find(card => card.id === 'turn_on_smart_contact_with_mode');
+
+  assert.equal(action.title.en, 'Turn on Smart Contact with mode');
+  assert.equal(action.titleFormatted.en, 'Turn on Smart Contact with [[mode]] mode');
+  assert.deepEqual(action.args[0].values.map(value => value.id), [
+    'battery',
+    'pv_overflow',
+    'combined',
+    'off',
   ]);
 });
