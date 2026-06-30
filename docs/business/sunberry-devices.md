@@ -135,9 +135,9 @@ Homey device:
 - Driver: `sunberry_grid`
 - Class: `sensor`
 - Energy model:
-  - `energy.cumulative: true`
-  - `cumulativeImportedCapability: meter_power.imported`
-  - `cumulativeExportedCapability: meter_power.exported`
+  - No Homey Energy cumulative grid meter is exposed.
+  - Sunberry GRID values represent current house consumption by phase, not a verified net import/export meter at the public grid boundary.
+  - Treating these values as `meter_power.imported` would make Homey report house load as grid import even when solar production and battery charging cover the load locally.
 
 ### GRID Window
 
@@ -152,9 +152,7 @@ Mapped values:
 | L1 | `measure_L1` | Signed instantaneous W |
 | L2 | `measure_L2` | Signed instantaneous W |
 | L3 | `measure_L3` | Signed instantaneous W |
-| Celkem | `measure_total` and `measure_power` | Signed instantaneous total W |
-| Integrated positive total | `meter_power.imported` | Estimated cumulative imported/consumed kWh |
-| Integrated negative total | `meter_power.exported` | Estimated cumulative exported/sold kWh |
+| Celkem | `measure_total` | Signed instantaneous total W |
 
 Threshold handling:
 
@@ -162,20 +160,19 @@ Threshold handling:
 - This applies to individual phases and total.
 - These threshold values do not add to imported or exported kWh.
 
-Signed total behavior:
+Signed phase behavior:
 
-- Positive `Celkem` contributes to `meter_power.imported`.
-- Negative `Celkem` contributes to `meter_power.exported`.
-- If polling samples cross zero between two successful reads, the interval is split between import and export using linear interpolation.
-- The app skips cumulative kWh integration after long polling gaps to avoid artificial jumps after downtime or network outages.
+- Positive values mean current house consumption on that phase.
+- Negative values mean the installation is exporting on that phase.
+- These signed values are exposed for user visibility and Flow logic only.
+- They are not integrated into Homey Energy kWh because the Sunberry GRID page is not a verified net grid import/export meter.
 
-The cumulative kWh values are estimates derived from instantaneous W and the polling interval. They are useful for Homey Energy visualization, but they are not billing-grade meter readings.
+The app intentionally does not estimate cumulative import/export kWh from Sunberry GRID values. Doing so would overstate grid import whenever the house load is covered by local solar production or battery discharge.
 
 Flow behavior:
 
-- Home Consumption uses `meter_power.imported` and `meter_power.exported` sub-capabilities so Homey Energy can distinguish import from export.
-- Homey does not automatically expose the same generic `Power meter changed` system Flow card for these sub-capabilities as it does for a plain `meter_power` capability.
-- The app therefore provides dedicated Home Consumption Flow triggers for changes to estimated import and export meters instead of adding a duplicate plain `meter_power` capability that would confuse the Energy model.
+- Home Consumption exposes phase and total telemetry capabilities.
+- It does not provide dedicated import/export kWh Flow triggers because those values are no longer estimated.
 
 ### BACKUP Window
 
@@ -198,7 +195,7 @@ Backup values are exposed as informational capabilities only. They are not used 
 
 - Parser behavior for `<30 W` and signed GRID values is covered by `test/sunberry-parsers.test.js`.
 - Battery charged/discharged kWh estimation behavior is covered by `test/battery-energy-estimator.test.js`.
-- Home Consumption/Grid kWh estimation behavior is covered by `test/grid-energy-estimator.test.js`.
+- Home Consumption Energy exclusion behavior is covered by `test/sunberry-grid-energy-model.test.js`.
 - Solar kWh estimation behavior is covered by `test/solar-energy-estimator.test.js`.
 - Request queue behavior is covered by `test/sunberry-client.test.js`.
 - Request throttling behavior is covered by `test/sunberry-request-queue.test.js`.

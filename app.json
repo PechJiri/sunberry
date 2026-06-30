@@ -129,58 +129,6 @@
             "filter": "driver_id=sunberry_battery"
           }
         ]
-      },
-      {
-        "id": "grid_import_meter_changed",
-        "title": {
-          "en": "Home consumption import meter changed"
-        },
-        "hint": {
-          "en": "Triggers when the estimated cumulative home consumption import energy changes."
-        },
-        "tokens": [
-          {
-            "name": "energy",
-            "type": "number",
-            "title": {
-              "en": "Energy"
-            },
-            "example": 1.5
-          }
-        ],
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=sunberry_grid"
-          }
-        ]
-      },
-      {
-        "id": "grid_export_meter_changed",
-        "title": {
-          "en": "Home consumption export meter changed"
-        },
-        "hint": {
-          "en": "Triggers when the estimated cumulative home consumption export energy changes."
-        },
-        "tokens": [
-          {
-            "name": "energy",
-            "type": "number",
-            "title": {
-              "en": "Energy"
-            },
-            "example": 0.25
-          }
-        ],
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=sunberry_grid"
-          }
-        ]
       }
     ],
     "conditions": [
@@ -430,15 +378,7 @@
         "en": "Sunberry Home Consumption"
       },
       "class": "sensor",
-      "energy": {
-        "cumulative": true,
-        "cumulativeImportedCapability": "meter_power.imported",
-        "cumulativeExportedCapability": "meter_power.exported"
-      },
       "capabilities": [
-        "measure_power",
-        "meter_power.imported",
-        "meter_power.exported",
         "measure_L1",
         "measure_L2",
         "measure_L3",

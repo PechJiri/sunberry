@@ -1,6 +1,6 @@
 {
   "name": "com.sunberry.local",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "main": "app.js",
   "scripts": {
     "test": "node -e \"process.env.NODE_ENV='test'; const { spawnSync } = require('node:child_process'); const result = spawnSync(process.execPath, ['--test'], { stdio: 'inherit', env: process.env }); process.exit(result.status);\"",

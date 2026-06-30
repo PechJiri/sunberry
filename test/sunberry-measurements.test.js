@@ -71,7 +71,6 @@ test('normalizeGridMeasurements maps grid and backup values separately', () => {
     L3: 50,
     Total: 120,
   }), {
-    measure_power: 1375,
     measure_L1: 804,
     measure_L2: 303,
     measure_L3: 268,
