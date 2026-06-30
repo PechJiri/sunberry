@@ -29,6 +29,30 @@ test('buildSmartContactTimerPayload creates all-week timer payload from settings
   });
 });
 
+test('buildSmartContactTimerPayload supports all Sunberry timer modes', () => {
+  const expectedByMode = {
+    pv_overflow: 'start_0=06%3A00&stop_0=21%3A00&mode_0=pv_overflow&Mon_0=Mon_0&Tue_0=Tue_0&Wed_0=Wed_0&Thu_0=Thu_0&Fri_0=Fri_0&Sat_0=Sat_0&Sun_0=Sun_0&submit=',
+    combined: 'start_0=06%3A00&stop_0=21%3A00&mode_0=combined&Mon_0=Mon_0&Tue_0=Tue_0&Wed_0=Wed_0&Thu_0=Thu_0&Fri_0=Fri_0&Sat_0=Sat_0&Sun_0=Sun_0&submit=',
+    off: 'start_0=06%3A00&stop_0=21%3A00&mode_0=off&Mon_0=Mon_0&Tue_0=Tue_0&Wed_0=Wed_0&Thu_0=Thu_0&Fri_0=Fri_0&Sat_0=Sat_0&Sun_0=Sun_0&submit=',
+    battery: 'start_0=06%3A00&stop_0=21%3A00&mode_0=battery&Mon_0=Mon_0&Tue_0=Tue_0&Wed_0=Wed_0&Thu_0=Thu_0&Fri_0=Fri_0&Sat_0=Sat_0&Sun_0=Sun_0&submit=',
+  };
+
+  for (const [mode, expected] of Object.entries(expectedByMode)) {
+    assert.equal(String(new URLSearchParams(buildSmartContactTimerPayload({
+      start: '06:00',
+      stop: '21:00',
+      mode,
+    }))), expected);
+  }
+});
+
+test('buildSmartContactTimerPayload defaults to full-day battery mode', () => {
+  assert.equal(
+    String(new URLSearchParams(buildSmartContactTimerPayload())),
+    'start_0=00%3A00&stop_0=23%3A59&mode_0=battery&Mon_0=Mon_0&Tue_0=Tue_0&Wed_0=Wed_0&Thu_0=Thu_0&Fri_0=Fri_0&Sat_0=Sat_0&Sun_0=Sun_0&submit='
+  );
+});
+
 test('buildSmartContactSettingsPayload maps advanced settings to Sunberry form fields', () => {
   assert.deepEqual(buildSmartContactSettingsPayload({
     power: 1200,

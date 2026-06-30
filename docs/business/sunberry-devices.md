@@ -308,6 +308,17 @@ The Sunberry settings form is intentionally sent separately from activation. Whe
 
 Timer settings are also sent as a complete form payload. When the timer start, timer stop, or timer mode setting changes, the app posts the complete all-week timer payload to `/heat_pump/timers` without changing the active switch state. When the user turns `onoff` on, the app posts the same complete timer payload first and then calls `/heat_pump/active_change/True`.
 
+Timer mode mapping:
+
+| Sunberry mode label | `mode_0` value |
+| --- | --- |
+| Přetoky | `pv_overflow` |
+| Kombinované | `combined` |
+| Vypnuto | `off` |
+| Baterie | `battery` |
+
+The default timer payload is full-day battery mode: `start_0=00:00`, `stop_0=23:59`, `mode_0=battery`, with all days of the week enabled.
+
 Limitations:
 
 - The app does not currently mirror the Sunberry active switch from the settings page during polling. The `onoff` state reflects Homey control actions.
