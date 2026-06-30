@@ -74,6 +74,34 @@ test('pollAndSetAvailability waits for repeated polling failures before marking 
   assert.deepEqual(device.unavailableMessages, ['HTTP 500']);
 });
 
+test('pollAndSetAvailability does not reject when warning status update fails', async () => {
+  class TestPollingDevice extends SunberryPollingDevice {
+    constructor() {
+      super();
+      this.loggedErrors = [];
+    }
+
+    async pollOnce() {
+      throw new Error('Not Found: Device with ID missing');
+    }
+
+    async setWarning() {
+      const error = new Error('Not Found: Device with ID missing');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    error(error) {
+      this.loggedErrors.push(error);
+    }
+  }
+
+  const device = new TestPollingDevice();
+
+  await assert.doesNotReject(() => device.pollAndSetAvailability());
+  assert.equal(device.loggedErrors.length, 2);
+});
+
 test('pollAndSetAvailability resets repeated failure counter after a successful poll', async () => {
   class TestPollingDevice extends SunberryPollingDevice {
     constructor(results) {
