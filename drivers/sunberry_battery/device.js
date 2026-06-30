@@ -2,7 +2,6 @@
 
 const DataValidator = require('../../lib/DataValidator');
 const { updateEstimatedBatteryMeters } = require('../../lib/BatteryEnergyEstimator');
-const { didCrossBatteryLevel } = require('../../lib/FlowLogic');
 const SunberryBatteryControl = require('../../lib/SunberryBatteryControl');
 const SunberryClient = require('../../lib/SunberryClient');
 const { normalizeBatteryMeasurements } = require('../../lib/SunberryMeasurements');
@@ -13,7 +12,6 @@ class SunberryBatteryDevice extends SunberryPollingDevice {
         this.controlApi = new SunberryBatteryControl();
         await this.controlApi.initializeLogger(this.homey);
         this.controlApi.setBaseUrl(this.getSetting('ip_address'));
-        this.registerBatteryFlowCards();
         this.registerCapabilityListener('force_charging', this.onForceChargingChanged.bind(this));
         this.registerCapabilityListener('block_battery_discharge', this.onBlockDischargeChanged.bind(this));
         await super.onInit();
@@ -90,40 +88,6 @@ class SunberryBatteryDevice extends SunberryPollingDevice {
         await this.controlApi.enableBatteryDischarge();
         await this.setCapabilityValue('block_battery_discharge', false);
         return true;
-    }
-
-    registerBatteryFlowCards() {
-        const flow = this.homey.flow;
-
-        flow.getDeviceTriggerCard('battery_level_changed').registerRunListener(async (args, state) => {
-            return didCrossBatteryLevel({
-                previous: state.previous_battery_level,
-                current: state.battery_level,
-                target: args.target_level
-            });
-        });
-
-        flow.getConditionCard('battery_level_check').registerRunListener(async (args) => {
-            const currentLevel = this.getCapabilityValue('measure_battery');
-            return args.comparison === 'below'
-                ? currentLevel < args.level
-                : currentLevel > args.level;
-        });
-
-        flow.getConditionCard('is_battery_discharge_blocked').registerRunListener(async (args) => {
-            const value = this.getCapabilityValue('block_battery_discharge');
-            return args.inverted ? !value : value;
-        });
-
-        flow.getConditionCard('is_force_charging').registerRunListener(async (args) => {
-            const value = this.getCapabilityValue('force_charging');
-            return args.inverted ? !value : value;
-        });
-
-        flow.getActionCard('block_battery_discharge').registerRunListener(async () => this.blockBatteryDischarge());
-        flow.getActionCard('enable_battery_discharge').registerRunListener(async () => this.enableBatteryDischarge());
-        flow.getActionCard('turn_off_battery_charging').registerRunListener(async () => this.turnOffBatteryCharging());
-        flow.getActionCard('turn_on_battery_charging').registerRunListener(async (args) => this.turnOnBatteryCharging(args));
     }
 
     async triggerBatteryMeasurementFlows(previousBatteryLevel, previousMaxChargingPower, updates) {

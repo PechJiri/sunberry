@@ -1,8 +1,9 @@
 'use strict';
 
+const { registerBatteryFlowCards } = require('../../lib/BatteryFlowCards');
 const { createSunberryDriver } = require('../../lib/SunberrySplitDriver');
 
-module.exports = createSunberryDriver({
+const BaseDriver = createSunberryDriver({
     type: 'battery',
     name: 'Sunberry Battery',
     testMethod: 'getBatteryValues',
@@ -10,3 +11,12 @@ module.exports = createSunberryDriver({
         force_charging_limit: 5000
     }
 });
+
+class SunberryBatteryDriver extends BaseDriver {
+    async onInit() {
+        await super.onInit();
+        registerBatteryFlowCards(this.homey);
+    }
+}
+
+module.exports = SunberryBatteryDriver;

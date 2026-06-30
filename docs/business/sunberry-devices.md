@@ -12,9 +12,15 @@ All Sunberry Homey devices represent one physical Sunberry unit. The app splits 
 
 The user can enter either the real device IP address or `sunberry.local` during pairing. When `sunberry.local` is used, the app resolves it to an IPv4 address and stores that IP in the paired Homey device. This avoids runtime failures when Homey's app runtime cannot resolve `.local` names reliably.
 
-All HTTP reads go through a shared request queue keyed by the resolved base URL. This prevents Battery, Solar, and Grid polling from sending requests to the same physical Sunberry unit at exactly the same time.
+All HTTP reads go through a shared request queue keyed by the resolved base URL. This prevents Battery, Solar, and Home Consumption polling from sending requests to the same physical Sunberry unit at exactly the same time.
 
-Transient polling failures, such as a temporary HTTP 500 from one Sunberry page, do not immediately mark a Homey device as unavailable. A device is marked unavailable only after three consecutive failed polling attempts. Any successful poll resets the failure counter.
+The request queue also leaves a short gap between requests to the same physical Sunberry unit. This protects older Raspberry Pi/UniPi based installations from receiving several back-to-back HTTP requests at the exact same moment.
+
+Transient polling failures, such as a temporary HTTP 500 from one Sunberry page, do not immediately mark a Homey device as unavailable. A device shows a warning for the first failed polling attempts and is marked unavailable only after three consecutive failed polling attempts. After that point polling backs off to an hourly self-healing check. Any successful poll resets the failure counter, clears the warning when supported by the Homey runtime, marks the device available, and updates Homey's last-seen timestamp.
+
+Polling uses a short startup jitter and skips overlapping runs for the same Homey device. If a previous polling cycle is still running, a new timer tick reuses that in-flight cycle instead of starting another HTTP read.
+
+Sunberry HTML endpoint responses are expected to be small. Oversized responses are rejected before parsing to avoid unnecessary memory use if the device returns an unexpected page.
 
 ## Battery Device
 
@@ -195,4 +201,5 @@ Backup values are exposed as informational capabilities only. They are not used 
 - Home Consumption/Grid kWh estimation behavior is covered by `test/grid-energy-estimator.test.js`.
 - Solar kWh estimation behavior is covered by `test/solar-energy-estimator.test.js`.
 - Request queue behavior is covered by `test/sunberry-client.test.js`.
+- Request throttling behavior is covered by `test/sunberry-request-queue.test.js`.
 - Pairing and `.local` resolution behavior is covered by `test/sunberry-pairing.test.js`.

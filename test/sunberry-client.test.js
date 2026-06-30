@@ -46,6 +46,36 @@ test('SunberryClient rejects non-200 endpoint responses', async () => {
   await assert.rejects(() => client.getGridValues(), /HTTP 503/);
 });
 
+test('SunberryClient rejects oversized endpoint responses', async () => {
+  const client = new SunberryClient({
+    baseUrl: 'http://example.test',
+    fetchImpl: async () => ({
+      status: 200,
+      headers: {
+        get: name => name.toLowerCase() === 'content-length' ? String(600 * 1024) : null,
+      },
+      text: async () => 'not read',
+    }),
+  });
+
+  await assert.rejects(() => client.getGridValues(), /too large/);
+});
+
+test('SunberryClient rejects oversized endpoint response bodies without content-length', async () => {
+  const client = new SunberryClient({
+    baseUrl: 'http://example.test',
+    fetchImpl: async () => ({
+      status: 200,
+      headers: {
+        get: () => null,
+      },
+      text: async () => 'x'.repeat(600 * 1024),
+    }),
+  });
+
+  await assert.rejects(() => client.getGridValues(), /too large/);
+});
+
 test('SunberryClient serializes concurrent requests for the same Sunberry base URL', async () => {
   const calls = [];
   let inFlight = 0;
