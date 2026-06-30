@@ -142,8 +142,14 @@ test('SunberrySmartContactControl posts timer settings without changing active s
 
 test('SunberrySmartContactControl posts settings separately from active state', async () => {
   const calls = [];
+  const cookieRequests = [];
   const control = new SunberrySmartContactControl({
-    cookieManager: { getCookie: async () => 'session-cookie' },
+    cookieManager: {
+      getCookie: async (...args) => {
+        cookieRequests.push(args);
+        return 'session-cookie';
+      },
+    },
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
       return { status: 302, text: async () => '' };
@@ -161,6 +167,7 @@ test('SunberrySmartContactControl posts settings separately from active state', 
   });
 
   assert.equal(calls.length, 1);
+  assert.deepEqual(cookieRequests, [['http://192.168.1.50', '/heat_pump/settings']]);
   assert.equal(calls[0].url, 'http://192.168.1.50/heat_pump/settings');
   assert.equal(calls[0].options.method, 'POST');
   assert.equal(String(calls[0].options.body), 'power=1400&overflow_offset=&soc_min=90&min_time=20&output=DO1&priority=soc');

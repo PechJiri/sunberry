@@ -38,6 +38,78 @@ test('smart contact settings update merges partial Homey changes into a complete
   }]);
 });
 
+test('smart contact settings update sends complete payload when power and SOC change together', async () => {
+  const calls = [];
+  const device = new SunberrySmartContactDevice();
+
+  device.getSettings = () => ({
+    smart_contact_power: 1200,
+    smart_contact_overflow_offset: '',
+    smart_contact_soc_min: 90,
+    smart_contact_min_time: 20,
+    smart_contact_output: 'DO1',
+    smart_contact_priority: 'soc',
+  });
+  device.controlApi = {
+    updateSettings: async (settings) => calls.push(settings),
+  };
+
+  await device.onSettings({
+    changedKeys: ['smart_contact_power', 'smart_contact_soc_min'],
+    newSettings: {
+      smart_contact_power: 1400,
+      smart_contact_soc_min: 85,
+    },
+  });
+
+  assert.deepEqual(calls, [{
+    power: 1400,
+    overflowOffset: '',
+    socMin: 85,
+    minTime: 20,
+    output: 'DO1',
+    priority: 'soc',
+  }]);
+});
+
+test('smart contact settings request body matches the Sunberry settings form', async () => {
+  const calls = [];
+  const device = new SunberrySmartContactDevice();
+
+  device.getSettings = () => ({
+    smart_contact_power: 1200,
+    smart_contact_overflow_offset: '',
+    smart_contact_soc_min: 90,
+    smart_contact_min_time: 20,
+    smart_contact_output: 'DO1',
+    smart_contact_priority: 'soc',
+  });
+  device.controlApi = {
+    updateSettings: async (settings) => {
+      calls.push(String(new URLSearchParams({
+        power: String(settings.power),
+        overflow_offset: settings.overflowOffset === undefined || settings.overflowOffset === null ? '' : String(settings.overflowOffset),
+        soc_min: String(settings.socMin),
+        min_time: String(settings.minTime),
+        output: String(settings.output),
+        priority: String(settings.priority),
+      })));
+    },
+  };
+
+  await device.onSettings({
+    changedKeys: ['smart_contact_power', 'smart_contact_soc_min'],
+    newSettings: {
+      smart_contact_power: 1200,
+      smart_contact_soc_min: 90,
+    },
+  });
+
+  assert.deepEqual(calls, [
+    'power=1200&overflow_offset=&soc_min=90&min_time=20&output=DO1&priority=soc',
+  ]);
+});
+
 test('smart contact timer update merges partial Homey changes into a complete timer payload', async () => {
   const calls = [];
   const device = new SunberrySmartContactDevice();
