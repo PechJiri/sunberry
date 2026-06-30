@@ -1,0 +1,33 @@
+{
+  "id": "sunberry_smart_meter",
+  "name": {
+    "en": "Sunberry Smart Meter"
+  },
+  "class": "sensor",
+  "energy": {
+    "cumulative": true,
+    "cumulativeImportedCapability": "meter_power.imported",
+    "cumulativeExportedCapability": "meter_power.exported"
+  },
+  "capabilities": [
+    "measure_power",
+    "meter_power.imported",
+    "meter_power.exported"
+  ],
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "pair"
+    }
+  ]
+}

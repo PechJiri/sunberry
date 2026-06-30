@@ -6,7 +6,7 @@
       "en": "Polling interval in seconds (default 10s, minimum 5s)"
     },
     "hint": {
-      "en": "Set the interval for data updates from the Sunberry. This device reports house and backup load telemetry only; net grid import/export is reported by Sunberry Smart Meter."
+      "en": "Set the interval for data updates from the Sunberry. Import/export kWh is estimated from house load, battery power, solar production, and the polling interval. It is not a billing-grade meter."
     },
     "value": 10,
     "min": 5

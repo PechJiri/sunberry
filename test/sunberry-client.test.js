@@ -5,6 +5,10 @@ const test = require('node:test');
 
 const SunberryClient = require('../lib/SunberryClient');
 
+test.beforeEach(() => {
+  SunberryClient._private.htmlCache.clear();
+});
+
 test('SunberryClient reads values through endpoint-specific parsers', async () => {
   const calls = [];
   const client = new SunberryClient({
@@ -137,4 +141,32 @@ test('SunberryClient resolves .local hostnames to IPv4 before fetching', async (
 
   assert.equal((await client.getSolarValues()).total_power, 100);
   assert.deepEqual(calls, ['http://192.168.68.67/pv/values']);
+});
+
+test('SunberryClient reuses fresh endpoint reads across devices for a short TTL', async () => {
+  const calls = [];
+  const clientA = new SunberryClient({
+    baseUrl: 'http://cache.test',
+    fetchImpl: async (url) => {
+      calls.push(url);
+      return {
+        status: 200,
+        text: async () => '<label>Pv1:</label><label>100 W</label><label>Pv2:</label><label>0 W</label>',
+      };
+    },
+  });
+  const clientB = new SunberryClient({
+    baseUrl: 'http://cache.test',
+    fetchImpl: async (url) => {
+      calls.push(url);
+      return {
+        status: 200,
+        text: async () => '<label>Pv1:</label><label>200 W</label><label>Pv2:</label><label>0 W</label>',
+      };
+    },
+  });
+
+  assert.equal((await clientA.getSolarValues()).total_power, 100);
+  assert.equal((await clientB.getSolarValues()).total_power, 100);
+  assert.deepEqual(calls, ['http://cache.test/pv/values']);
 });

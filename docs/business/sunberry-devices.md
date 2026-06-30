@@ -9,6 +9,7 @@ All Sunberry Homey devices represent one physical Sunberry unit. The app splits 
 - `Sunberry Battery`
 - `Sunberry Solar`
 - `Sunberry Home Consumption`
+- `Sunberry Smart Meter`
 
 The user can enter either the real device IP address or `sunberry.local` during pairing. When `sunberry.local` is used, the app resolves it to an IPv4 address and stores that IP in the paired Homey device. This avoids runtime failures when Homey's app runtime cannot resolve `.local` names reliably.
 
@@ -191,11 +192,68 @@ Mapped values:
 
 Backup values are exposed as informational capabilities only. They are not used for Homey Energy cumulative import/export calculations.
 
+## Smart Meter Device
+
+Source endpoints:
+
+- `/grid/values`
+- `/battery/values`
+- `/pv/values`
+
+Homey device:
+
+- Driver: `sunberry_smart_meter`
+- Class: `sensor`
+- Energy model:
+  - `energy.cumulative: true`
+  - `cumulativeImportedCapability: meter_power.imported`
+  - `cumulativeExportedCapability: meter_power.exported`
+
+Business meaning:
+
+The Smart Meter device is a report-only computed meter for Homey Energy. It estimates the net public grid exchange from values that Sunberry exposes separately:
+
+```text
+net grid power = house consumption + battery power - solar production
+```
+
+Where:
+
+- `house consumption` is `/grid/values` total from the Sunberry GRID page.
+- `battery power` is signed using the app convention: positive while charging, negative while discharging.
+- `solar production` is `PV1 + PV2`.
+
+Mapped values:
+
+| Computed value | Homey capability | Notes |
+| --- | --- | --- |
+| Net grid power | `measure_power` | Positive = importing from grid, negative = exporting to grid |
+| Integrated positive net power | `meter_power.imported` | Estimated cumulative imported kWh |
+| Integrated negative net power | `meter_power.exported` | Estimated cumulative exported kWh |
+
+Example:
+
+If the house consumes `875 W`, the battery charges at `2900 W`, and solar produces `3900 W`, the computed net grid power is `-125 W`. That means the installation is exporting about `125 W` to the public grid, even though the Home Consumption device still shows `875 W` of house load.
+
+Limitations:
+
+- The Smart Meter is not a billing-grade meter.
+- Import/export kWh values are estimates derived from instantaneous W and the polling interval.
+- The first successful sample initializes the estimator and does not add kWh.
+- The app skips integration after long polling gaps to avoid artificial jumps after downtime or network outages.
+- The calculation assumes Sunberry GRID total means current house consumption, not a net grid meter. Current screenshots and observed behavior support that assumption.
+
+Performance behavior:
+
+Smart Meter polling reads battery, solar, and grid values. The shared Sunberry client keeps a short in-memory HTML cache by endpoint and resolved base URL, so multiple Homey devices polling the same physical Sunberry unit within a short window can reuse fresh endpoint reads instead of sending duplicate requests to the Raspberry Pi/UniPi.
+
 ## Maintenance Notes
 
 - Parser behavior for `<30 W` and signed GRID values is covered by `test/sunberry-parsers.test.js`.
 - Battery charged/discharged kWh estimation behavior is covered by `test/battery-energy-estimator.test.js`.
 - Home Consumption Energy exclusion behavior is covered by `test/sunberry-grid-energy-model.test.js`.
+- Smart Meter net import/export estimation behavior is covered by `test/energy-balance-estimator.test.js`.
+- Smart Meter Homey Energy metadata is covered by `test/sunberry-smart-meter-energy-model.test.js`.
 - Solar kWh estimation behavior is covered by `test/solar-energy-estimator.test.js`.
 - Request queue behavior is covered by `test/sunberry-client.test.js`.
 - Request throttling behavior is covered by `test/sunberry-request-queue.test.js`.
