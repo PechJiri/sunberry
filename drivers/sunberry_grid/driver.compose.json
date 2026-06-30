@@ -1,7 +1,7 @@
 {
   "id": "sunberry_grid",
   "name": {
-    "en": "Sunberry Grid"
+    "en": "Sunberry Home Consumption"
   },
   "class": "sensor",
   "energy": {

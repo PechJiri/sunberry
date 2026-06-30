@@ -133,10 +133,10 @@
       {
         "id": "grid_import_meter_changed",
         "title": {
-          "en": "Grid import meter changed"
+          "en": "Home consumption import meter changed"
         },
         "hint": {
-          "en": "Triggers when the estimated cumulative grid import energy changes."
+          "en": "Triggers when the estimated cumulative home consumption import energy changes."
         },
         "tokens": [
           {
@@ -159,10 +159,10 @@
       {
         "id": "grid_export_meter_changed",
         "title": {
-          "en": "Grid export meter changed"
+          "en": "Home consumption export meter changed"
         },
         "hint": {
-          "en": "Triggers when the estimated cumulative grid export energy changes."
+          "en": "Triggers when the estimated cumulative home consumption export energy changes."
         },
         "tokens": [
           {
@@ -427,7 +427,7 @@
     {
       "id": "sunberry_grid",
       "name": {
-        "en": "Sunberry Grid"
+        "en": "Sunberry Home Consumption"
       },
       "class": "sensor",
       "energy": {
@@ -472,7 +472,7 @@
             "en": "Polling interval in seconds (default 10s, minimum 5s)"
           },
           "hint": {
-            "en": "Set the interval for data updates from the Sunberry. Grid import/export kWh is estimated by integrating signed total W between successful polls; values shown as <30 W count as 0 W."
+            "en": "Set the interval for data updates from the Sunberry. Home consumption import/export kWh is estimated by integrating signed total W between successful polls; values shown as <30 W count as 0 W."
           },
           "value": 10,
           "min": 5

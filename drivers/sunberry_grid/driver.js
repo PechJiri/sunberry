@@ -4,6 +4,6 @@ const { createSunberryDriver } = require('../../lib/SunberrySplitDriver');
 
 module.exports = createSunberryDriver({
     type: 'grid',
-    name: 'Sunberry Grid',
+    name: 'Sunberry Home Consumption',
     testMethod: 'getGridValues'
 });

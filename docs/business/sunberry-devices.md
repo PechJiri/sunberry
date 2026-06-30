@@ -8,7 +8,7 @@ All Sunberry Homey devices represent one physical Sunberry unit. The app splits 
 
 - `Sunberry Battery`
 - `Sunberry Solar`
-- `Sunberry Grid`
+- `Sunberry Home Consumption`
 
 The user can enter either the real device IP address or `sunberry.local` during pairing. When `sunberry.local` is used, the app resolves it to an IPv4 address and stores that IP in the paired Homey device. This avoids runtime failures when Homey's app runtime cannot resolve `.local` names reliably.
 
@@ -117,7 +117,7 @@ Solar cumulative behavior:
 - The app skips integration after long polling gaps to avoid artificial jumps after downtime or network outages.
 - The cumulative solar kWh value is an estimate derived from instantaneous PV W and the polling interval. It is useful for Homey Energy visualization, but it is not a billing-grade production meter.
 
-## Grid Device
+## Home Consumption Device
 
 Source endpoints:
 
@@ -137,7 +137,7 @@ Homey device:
 
 Business meaning:
 
-The GRID window shows the current house load for each phase (`L1`, `L2`, `L3`) and total, in watts and as a percentage of the maximum possible load. The inverter cannot measure very small loads precisely; values below 30 W are displayed as `<30 W`.
+The Sunberry Home Consumption device uses the Sunberry GRID window as its source. This window shows the current house load for each phase (`L1`, `L2`, `L3`) and total, in watts and as a percentage of the maximum possible load. The inverter cannot measure very small loads precisely; values below 30 W are displayed as `<30 W`.
 
 Mapped values:
 
@@ -167,9 +167,9 @@ The cumulative kWh values are estimates derived from instantaneous W and the pol
 
 Flow behavior:
 
-- Grid uses `meter_power.imported` and `meter_power.exported` sub-capabilities so Homey Energy can distinguish import from export.
+- Home Consumption uses `meter_power.imported` and `meter_power.exported` sub-capabilities so Homey Energy can distinguish import from export.
 - Homey does not automatically expose the same generic `Power meter changed` system Flow card for these sub-capabilities as it does for a plain `meter_power` capability.
-- The app therefore provides dedicated Grid Flow triggers for changes to estimated import and export meters instead of adding a duplicate plain `meter_power` capability that would confuse the Energy model.
+- The app therefore provides dedicated Home Consumption Flow triggers for changes to estimated import and export meters instead of adding a duplicate plain `meter_power` capability that would confuse the Energy model.
 
 ### BACKUP Window
 
@@ -192,7 +192,7 @@ Backup values are exposed as informational capabilities only. They are not used 
 
 - Parser behavior for `<30 W` and signed GRID values is covered by `test/sunberry-parsers.test.js`.
 - Battery charged/discharged kWh estimation behavior is covered by `test/battery-energy-estimator.test.js`.
-- Grid kWh estimation behavior is covered by `test/grid-energy-estimator.test.js`.
+- Home Consumption/Grid kWh estimation behavior is covered by `test/grid-energy-estimator.test.js`.
 - Solar kWh estimation behavior is covered by `test/solar-energy-estimator.test.js`.
 - Request queue behavior is covered by `test/sunberry-client.test.js`.
 - Pairing and `.local` resolution behavior is covered by `test/sunberry-pairing.test.js`.

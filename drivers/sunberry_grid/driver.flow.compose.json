@@ -3,10 +3,10 @@
     {
       "id": "grid_import_meter_changed",
       "title": {
-        "en": "Grid import meter changed"
+        "en": "Home consumption import meter changed"
       },
       "hint": {
-        "en": "Triggers when the estimated cumulative grid import energy changes."
+        "en": "Triggers when the estimated cumulative home consumption import energy changes."
       },
       "tokens": [
         {
@@ -22,10 +22,10 @@
     {
       "id": "grid_export_meter_changed",
       "title": {
-        "en": "Grid export meter changed"
+        "en": "Home consumption export meter changed"
       },
       "hint": {
-        "en": "Triggers when the estimated cumulative grid export energy changes."
+        "en": "Triggers when the estimated cumulative home consumption export energy changes."
       },
       "tokens": [
         {

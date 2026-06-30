@@ -29,10 +29,10 @@ test('createDeviceForHost preserves driver type in paired device id', () => {
   assert.deepEqual(createDeviceForHost({
     type: 'grid',
     ipAddress: '192.168.1.50',
-    name: 'Sunberry Grid',
+    name: 'Sunberry Home Consumption',
     defaultSettings: {},
   }), {
-    name: 'Sunberry Grid',
+    name: 'Sunberry Home Consumption',
     data: { id: '192.168.1.50:grid' },
     settings: {
       ip_address: '192.168.1.50',
@@ -45,7 +45,7 @@ test('createDeviceForHost preserves driver type in paired device id', () => {
 test('split driver pairing requires user-provided host before listing devices', async () => {
   const Driver = createSunberryDriver({
     type: 'grid',
-    name: 'Sunberry Grid',
+    name: 'Sunberry Home Consumption',
     testMethod: 'getGridValues',
   });
   const driver = new Driver();
@@ -77,7 +77,7 @@ test('split driver check returns device for custom pairing createDevice flow', a
   try {
     const Driver = createSunberryDriver({
       type: 'grid',
-      name: 'Sunberry Grid',
+      name: 'Sunberry Home Consumption',
       testMethod: 'getGridValues',
     });
     const driver = new Driver();
@@ -95,7 +95,7 @@ test('split driver check returns device for custom pairing createDevice flow', a
     assert.deepEqual(result.device, createDeviceForHost({
       type: 'grid',
       ipAddress: '192.168.1.50',
-      name: 'Sunberry Grid',
+      name: 'Sunberry Home Consumption',
       defaultSettings: {},
     }));
   } finally {
@@ -130,7 +130,7 @@ test('split driver check stores resolved IPv4 address for sunberry.local pairing
   try {
     const Driver = createSunberryDriver({
       type: 'grid',
-      name: 'Sunberry Grid',
+      name: 'Sunberry Home Consumption',
       testMethod: 'getGridValues',
     });
     const driver = new Driver();
