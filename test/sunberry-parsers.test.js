@@ -175,3 +175,18 @@ test('parseHeatPumpValues extracts contact state, SOC, and optional timestamps',
     last_opened_at: '29.06.2026 20:00:00',
   });
 });
+
+test('parseHeatPumpValues maps closed contact with accented labels', () => {
+  const html = `
+    <label>Stav kontaktu:</label><label>Sepnutý</label>
+    <label>Čas posledního sepnutí:</label><label>30.06.2026 20:17:41 </label>
+    <label>Čas posledního rozpojení:</label><label>30.06.2026 20:21:25 </label>`;
+
+  assert.deepEqual(parseHeatPumpValues(html), {
+    contact_closed: true,
+    state: 'closed',
+    soc_percent: 0,
+    last_closed_at: '30.06.2026 20:17:41',
+    last_opened_at: '30.06.2026 20:21:25',
+  });
+});

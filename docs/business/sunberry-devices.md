@@ -10,6 +10,7 @@ All Sunberry Homey devices represent one physical Sunberry unit. The app splits 
 - `Sunberry Solar`
 - `Sunberry Home Consumption`
 - `Sunberry Smart Meter`
+- `Sunberry Smart Contact`
 
 The user can enter either the real device IP address or `sunberry.local` during pairing. When `sunberry.local` is used, the app resolves it to an IPv4 address and stores that IP in the paired Homey device. This avoids runtime failures when Homey's app runtime cannot resolve `.local` names reliably.
 
@@ -247,13 +248,80 @@ Performance behavior:
 
 Smart Meter polling reads battery, solar, and grid values. The shared Sunberry client keeps a short in-memory HTML cache by endpoint and resolved base URL, so multiple Homey devices polling the same physical Sunberry unit within a short window can reuse fresh endpoint reads instead of sending duplicate requests to the Raspberry Pi/UniPi. The cache window is long enough to cover startup jitter and request queue spacing, but shorter than the minimum polling interval, so devices in the same polling cycle tend to display the same sampled values while the next cycle can refresh them.
 
+## Smart Contact Device
+
+Source endpoints:
+
+- `/heat_pump/heat_pump_values`
+- `/heat_pump/timers`
+- `/heat_pump/active_change/True`
+- `/heat_pump/active_change/False`
+- `/heat_pump/settings`
+
+Homey device:
+
+- Driver: `sunberry_smart_contact`
+- Class: `sensor`
+- Energy model:
+  - No Homey Energy role. The device represents a report-only contact state plus Sunberry Smart Contact control.
+
+Business meaning:
+
+The Smart Contact device maps the optional Sunberry `Chytrý kontakt` feature. The Sunberry portal exposes the physical contact state as Czech labels:
+
+- `Sepnutý` means the contact is closed.
+- `Rozpojený` means the contact is open.
+
+The Homey app itself remains English. Czech labels are used only for parsing the Sunberry portal response.
+
+Mapped values:
+
+| Sunberry value | Homey capability | Notes |
+| --- | --- | --- |
+| Stav kontaktu | `alarm_contact` | Standard Homey contact alarm. `true` means open, `false` means closed. |
+| Stav kontaktu | `smart_contact_closed` | Informational boolean state. `true` = closed, `false` = open. |
+| Čas posledního sepnutí | `smart_contact_last_closed_at` | Last close timestamp as reported by Sunberry. |
+| Čas posledního rozpojení | `smart_contact_last_opened_at` | Last open timestamp as reported by Sunberry. |
+
+Control behavior:
+
+- Homey's standard `onoff` capability controls whether the Sunberry Smart Contact function is active.
+- Turning `onoff` on posts one all-week timer to `/heat_pump/timers` and then calls `/heat_pump/active_change/True`.
+- Turning `onoff` off calls `/heat_pump/active_change/False`.
+- The timer always uses all days of the week. Its start time, stop time, and mode are configured in the device advanced settings.
+
+Advanced settings behavior:
+
+The Sunberry settings form is intentionally sent separately from activation. When one of these advanced settings changes, the app posts the settings payload to `/heat_pump/settings`:
+
+| Homey setting | Sunberry field | Notes |
+| --- | --- | --- |
+| Smart Contact timer start | `start_0` | Used only when turning the device on. Format `HH:MM`. |
+| Smart Contact timer stop | `stop_0` | Used only when turning the device on. Format `HH:MM`. |
+| Smart Contact timer mode | `mode_0` | Allowed values: `battery`, `pv_overflow`, `combined`, `off`. |
+| Switched load power | `power` | Total switched load power in W. |
+| Overflow offset | `overflow_offset` | Optional W offset. Empty value is preserved as empty. |
+| Minimum battery SOC | `soc_min` | Percent, 0-100. |
+| Minimum closed time | `min_time` | Minutes. |
+| Digital output | `output` | Allowed values: `DO1`, `DO2`, `DO3`, `DO4`. |
+| Battery mode priority | `priority` | Allowed values: `soc`, `time`. |
+
+Limitations:
+
+- The app does not currently mirror the Sunberry active switch from the settings page during polling. The `onoff` state reflects Homey control actions.
+- The app configures a single all-week timer when enabling the feature. It does not manage multiple timers or per-day timer schedules.
+- The Smart Contact page may not exist on installations where the installer did not enable the feature. Pairing the Smart Contact device will fail for those installations.
+
 ## Maintenance Notes
 
 - Parser behavior for `<30 W` and signed GRID values is covered by `test/sunberry-parsers.test.js`.
+- Smart Contact contact-state parsing is covered by `test/sunberry-parsers.test.js`.
 - Battery charged/discharged kWh estimation behavior is covered by `test/battery-energy-estimator.test.js`.
 - Home Consumption Energy exclusion behavior is covered by `test/sunberry-grid-energy-model.test.js`.
 - Smart Meter net import/export estimation behavior is covered by `test/energy-balance-estimator.test.js`.
 - Smart Meter Homey Energy metadata is covered by `test/sunberry-smart-meter-energy-model.test.js`.
+- Smart Contact control payloads are covered by `test/smart-contact-control.test.js`.
+- Smart Contact Homey metadata is covered by `test/sunberry-smart-contact-energy-model.test.js`.
 - Solar kWh estimation behavior is covered by `test/solar-energy-estimator.test.js`.
 - Request queue behavior is covered by `test/sunberry-client.test.js`.
 - Request throttling behavior is covered by `test/sunberry-request-queue.test.js`.

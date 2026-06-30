@@ -1,0 +1,30 @@
+{
+  "id": "sunberry_smart_contact",
+  "name": {
+    "en": "Sunberry Smart Contact"
+  },
+  "class": "sensor",
+  "capabilities": [
+    "onoff",
+    "alarm_contact",
+    "smart_contact_closed",
+    "smart_contact_last_closed_at",
+    "smart_contact_last_opened_at"
+  ],
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "pair"
+    }
+  ]
+}

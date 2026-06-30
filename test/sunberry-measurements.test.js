@@ -7,6 +7,7 @@ const {
   normalizeBatteryMeasurements,
   normalizeSolarMeasurements,
   normalizeGridMeasurements,
+  normalizeSmartContactMeasurements,
 } = require('../lib/SunberryMeasurements');
 
 test('normalizeBatteryMeasurements makes charging power positive', () => {
@@ -79,5 +80,18 @@ test('normalizeGridMeasurements maps grid and backup values separately', () => {
     measure_backup_L2: 40,
     measure_backup_L3: 50,
     measure_backup_total: 120,
+  });
+});
+
+test('normalizeSmartContactMeasurements maps contact state and timestamps', () => {
+  assert.deepEqual(normalizeSmartContactMeasurements({
+    contact_closed: false,
+    last_closed_at: '30.06.2026 20:17:41',
+    last_opened_at: '30.06.2026 20:21:25',
+  }), {
+    alarm_contact: true,
+    smart_contact_closed: false,
+    smart_contact_last_closed_at: '30.06.2026 20:17:41',
+    smart_contact_last_opened_at: '30.06.2026 20:21:25',
   });
 });

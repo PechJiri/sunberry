@@ -442,6 +442,175 @@
       ]
     },
     {
+      "id": "sunberry_smart_contact",
+      "name": {
+        "en": "Sunberry Smart Contact"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "onoff",
+        "alarm_contact",
+        "smart_contact_closed",
+        "smart_contact_last_closed_at",
+        "smart_contact_last_opened_at"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/sunberry_smart_contact/assets/images/small.png",
+        "large": "/drivers/sunberry_smart_contact/assets/images/large.png",
+        "xlarge": "/drivers/sunberry_smart_contact/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "id": "update_interval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval in seconds (default 10s, minimum 5s)"
+          },
+          "hint": {
+            "en": "Set the interval for reading Smart Contact state from the Sunberry portal."
+          },
+          "value": 10,
+          "min": 5
+        },
+        {
+          "id": "ip_address",
+          "type": "text",
+          "label": {
+            "en": "IP Address"
+          },
+          "value": "",
+          "hint": {
+            "en": "Enter the IP address or hostname of your Sunberry device, for example sunberry.local"
+          }
+        },
+        {
+          "id": "enable_debug_logs",
+          "type": "checkbox",
+          "label": {
+            "en": "Enable Debug Logs"
+          },
+          "hint": {
+            "en": "Enable or disable detailed debug logs for troubleshooting."
+          },
+          "value": false
+        },
+        {
+          "id": "smart_contact_timer_start",
+          "type": "text",
+          "label": {
+            "en": "Smart Contact timer start"
+          },
+          "hint": {
+            "en": "Daily timer start used when turning Smart Contact on. Format HH:MM."
+          },
+          "value": "00:00"
+        },
+        {
+          "id": "smart_contact_timer_stop",
+          "type": "text",
+          "label": {
+            "en": "Smart Contact timer stop"
+          },
+          "hint": {
+            "en": "Daily timer stop used when turning Smart Contact on. Format HH:MM."
+          },
+          "value": "23:59"
+        },
+        {
+          "id": "smart_contact_timer_mode",
+          "type": "text",
+          "label": {
+            "en": "Smart Contact timer mode"
+          },
+          "hint": {
+            "en": "Allowed values: battery, pv_overflow, combined, off."
+          },
+          "value": "battery"
+        },
+        {
+          "id": "smart_contact_power",
+          "type": "number",
+          "label": {
+            "en": "Switched load power"
+          },
+          "hint": {
+            "en": "Total switched load power in W sent to Sunberry Smart Contact settings."
+          },
+          "value": 1200,
+          "min": 0
+        },
+        {
+          "id": "smart_contact_overflow_offset",
+          "type": "text",
+          "label": {
+            "en": "Overflow offset"
+          },
+          "hint": {
+            "en": "Optional overflow offset in W. Leave empty to send an empty value."
+          },
+          "value": ""
+        },
+        {
+          "id": "smart_contact_soc_min",
+          "type": "number",
+          "label": {
+            "en": "Minimum battery SOC"
+          },
+          "hint": {
+            "en": "Minimum battery SOC in percent."
+          },
+          "value": 90,
+          "min": 0,
+          "max": 100
+        },
+        {
+          "id": "smart_contact_min_time",
+          "type": "number",
+          "label": {
+            "en": "Minimum closed time"
+          },
+          "hint": {
+            "en": "Minimum time the contact should remain closed, in minutes."
+          },
+          "value": 20,
+          "min": 0
+        },
+        {
+          "id": "smart_contact_output",
+          "type": "text",
+          "label": {
+            "en": "Digital output"
+          },
+          "hint": {
+            "en": "Allowed values: DO1, DO2, DO3, DO4."
+          },
+          "value": "DO1"
+        },
+        {
+          "id": "smart_contact_priority",
+          "type": "text",
+          "label": {
+            "en": "Battery mode priority"
+          },
+          "hint": {
+            "en": "Allowed values: soc or time."
+          },
+          "value": "soc"
+        }
+      ]
+    },
+    {
       "id": "sunberry_smart_meter",
       "name": {
         "en": "Sunberry Smart Meter"
@@ -829,6 +998,45 @@
       },
       "decimals": 2,
       "min": 0
+    },
+    "smart_contact_closed": {
+      "type": "boolean",
+      "title": {
+        "en": "Contact Closed"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "titleTrue": {
+        "en": "Closed"
+      },
+      "titleFalse": {
+        "en": "Open"
+      },
+      "icon": "/assets/images/contact.svg"
+    },
+    "smart_contact_last_closed_at": {
+      "type": "string",
+      "title": {
+        "en": "Last Closed At"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/date.svg"
+    },
+    "smart_contact_last_opened_at": {
+      "type": "string",
+      "title": {
+        "en": "Last Opened At"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/date.svg"
     },
     "stored_energy_kWh": {
       "type": "number",
