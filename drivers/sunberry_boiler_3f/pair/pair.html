@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        .homey-form-group { margin-bottom: 1rem; }
+        .homey-form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .homey-form-input { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+        .homey-form-input.error { border-color: #dc3545; }
+        .homey-button-primary-full { margin-top: 1rem; width: 100%; padding: 0.75rem; background-color: #00a0dc; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; }
+        .homey-button-primary-full:disabled { background-color: #ccc; cursor: not-allowed; }
+        .error-message { color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem; display: none; }
+    </style>
+</head>
+<body>
+<header class="homey-header">
+    <h1 class="homey-title">Connecting Sunberry Boiler 3F</h1>
+    <p class="homey-subtitle">Enter the IP address or hostname of your Sunberry device</p>
+</header>
+<div class="homey-form">
+    <div class="homey-form-group">
+        <label class="homey-form-label" for="ip_address">IP address</label>
+        <input class="homey-form-input" type="text" id="ip_address" placeholder="sunberry.local" value="" oninput="handleInput(event)" />
+        <small>Example: sunberry.local</small>
+        <div id="error-message" class="error-message"></div>
+    </div>
+    <button class="homey-button-primary-full" id="check-button" onclick="checkConnection()" disabled>Check connection</button>
+</div>
+<script type="application/javascript">
+    let inputTimer = null;
+    let isChecking = false;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await Homey.setTitle('Connecting to Sunberry Boiler 3F');
+        const settings = await Homey.emit('getSettings');
+        const input = document.getElementById('ip_address');
+        input.value = settings?.ip_address || '';
+        validateInput(input.value);
+    });
+
+    function handleInput(event) {
+        clearTimeout(inputTimer);
+        inputTimer = setTimeout(() => validateInput(event.target.value), 300);
+    }
+
+    function validateInput(value) {
+        const input = document.getElementById('ip_address');
+        const button = document.getElementById('check-button');
+        const trimmedValue = value.trim();
+        if (!trimmedValue) {
+            showError('IP address is required');
+            button.disabled = true;
+            return false;
+        }
+        hideError();
+        button.disabled = false;
+        input.classList.remove('error');
+        return true;
+    }
+
+    async function checkConnection() {
+        if (isChecking) return;
+        const input = document.getElementById('ip_address');
+        if (!validateInput(input.value)) return;
+        try {
+            isChecking = true;
+            const button = document.getElementById('check-button');
+            button.disabled = true;
+            const result = await Homey.emit('check', { ip_address: input.value.trim() });
+            if (!result?.success || !result?.device) throw new Error(result?.error || 'Unknown error');
+            await Homey.createDevice(result.device);
+            await Homey.done();
+        } catch (error) {
+            showError(error.message || 'Failed to connect to device');
+        } finally {
+            isChecking = false;
+            document.getElementById('check-button').disabled = false;
+        }
+    }
+
+    function showError(message) {
+        const error = document.getElementById('error-message');
+        error.textContent = message;
+        error.style.display = 'block';
+        document.getElementById('ip_address').classList.add('error');
+    }
+
+    function hideError() {
+        document.getElementById('error-message').style.display = 'none';
+    }
+</script>
+</body>
+</html>

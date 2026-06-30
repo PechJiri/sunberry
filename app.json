@@ -425,6 +425,135 @@
       ]
     },
     {
+      "id": "sunberry_boiler_1f",
+      "name": {
+        "en": "Sunberry Boiler 1F"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "measure_temperature"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/sunberry_boiler_1f/assets/images/small.png",
+        "large": "/drivers/sunberry_boiler_1f/assets/images/large.png",
+        "xlarge": "/drivers/sunberry_boiler_1f/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "id": "update_interval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval in seconds (default 10s, minimum 5s)"
+          },
+          "hint": {
+            "en": "Set the interval for boiler values from the Sunberry. The 1F boiler reports total heater power and temperature when a sensor is connected."
+          },
+          "value": 10,
+          "min": 5
+        },
+        {
+          "id": "ip_address",
+          "type": "text",
+          "label": {
+            "en": "IP Address"
+          },
+          "value": "",
+          "hint": {
+            "en": "Enter the IP address or hostname of your Sunberry device, for example sunberry.local"
+          }
+        },
+        {
+          "id": "enable_debug_logs",
+          "type": "checkbox",
+          "label": {
+            "en": "Enable Debug Logs"
+          },
+          "hint": {
+            "en": "Enable or disable detailed debug logs for troubleshooting."
+          },
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "sunberry_boiler_3f",
+      "name": {
+        "en": "Sunberry Boiler 3F"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "measure_temperature",
+        "measure_L1",
+        "measure_L2",
+        "measure_L3"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/sunberry_boiler_3f/assets/images/small.png",
+        "large": "/drivers/sunberry_boiler_3f/assets/images/large.png",
+        "xlarge": "/drivers/sunberry_boiler_3f/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "id": "update_interval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval in seconds (default 10s, minimum 5s)"
+          },
+          "hint": {
+            "en": "Set the interval for boiler values from the Sunberry. The 3F boiler reports total heater power, per-phase heater power, and temperature when a sensor is connected."
+          },
+          "value": 10,
+          "min": 5
+        },
+        {
+          "id": "ip_address",
+          "type": "text",
+          "label": {
+            "en": "IP Address"
+          },
+          "value": "",
+          "hint": {
+            "en": "Enter the IP address or hostname of your Sunberry device, for example sunberry.local"
+          }
+        },
+        {
+          "id": "enable_debug_logs",
+          "type": "checkbox",
+          "label": {
+            "en": "Enable Debug Logs"
+          },
+          "hint": {
+            "en": "Enable or disable detailed debug logs for troubleshooting."
+          },
+          "value": false
+        }
+      ]
+    },
+    {
       "id": "sunberry_grid",
       "name": {
         "en": "Sunberry Home Consumption"

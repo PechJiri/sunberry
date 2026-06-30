@@ -20,6 +20,7 @@ test('SunberryClient reads values through endpoint-specific parsers', async () =
         'http://example.test/pv/values': '<label>Pv1:</label><label>100 W</label><label>2 %</label><label>Pv2:</label><label>0 W</label><label>0 %</label>',
         'http://example.test/grid/values': '<label>L1:</label><label>1 W</label><label>1 %</label><label>L2:</label><label>2 W</label><label>2 %</label><label>L3:</label><label>3 W</label><label>3 %</label><label>Celkem:</label><label>6 W</label><label>6 %</label>',
         'http://example.test/backup/values': '<label>L1:</label><label>4 W</label><label>1 %</label><label>L2:</label><label>5 W</label><label>2 %</label><label>L3:</label><label>6 W</label><label>3 %</label><label>Celkem:</label><label>15 W</label><label>6 %</label>',
+        'http://example.test/boiler/boiler_values': '<label>Teplotni cidlo:</label><label>41.2 deg C</label><label>Vykon spiraly:</label><label>25 %</label><label>500 W</label>',
       };
 
       return {
@@ -33,11 +34,13 @@ test('SunberryClient reads values through endpoint-specific parsers', async () =
   assert.equal((await client.getSolarValues()).total_power, 100);
   assert.equal((await client.getGridValues()).Total, 6);
   assert.equal((await client.getBackupValues()).Total, 15);
+  assert.equal((await client.getBoilerValues()).total_power, 500);
   assert.deepEqual(calls, [
     'http://example.test/battery/values',
     'http://example.test/pv/values',
     'http://example.test/grid/values',
     'http://example.test/backup/values',
+    'http://example.test/boiler/boiler_values',
   ]);
 });
 

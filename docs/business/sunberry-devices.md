@@ -363,10 +363,47 @@ Limitations:
 - The app does not currently mirror the Sunberry active switch from the settings page during polling. The `onoff` state reflects Homey control actions.
 - The app configures a single all-week timer when enabling the feature. It does not manage multiple timers or per-day timer schedules.
 - The Smart Contact page may not exist on installations where the installer did not enable the feature. Pairing the Smart Contact device will fail for those installations.
+
+## Boiler Devices
+
+Source endpoint:
+
+- `/boiler/boiler_values`
+
+The visible Sunberry page `/boiler/boiler_values_page` is only a portal wrapper. It loads the actual values through `/boiler/boiler_values`, so the Homey app polls the values endpoint directly.
+
+Homey devices:
+
+- Driver: `sunberry_boiler_1f`
+- Name: `Sunberry Boiler 1F`
+- Class: `sensor`
+- Capabilities: `measure_power`, `measure_temperature`
+
+- Driver: `sunberry_boiler_3f`
+- Name: `Sunberry Boiler 3F`
+- Class: `sensor`
+- Capabilities: `measure_power`, `measure_temperature`, `measure_L1`, `measure_L2`, `measure_L3`
+
+Business meaning:
+
+The Boiler devices map the optional Sunberry `Bojler` feature. The Sunberry values window reports water temperature when a temperature sensor is connected and current heater power in W plus percent of the configured maximum heater power. If no temperature sensor is connected, Sunberry shows text equivalent to `No temperature sensor connected`; the app then does not update `measure_temperature`.
+
+The app intentionally exposes two separate boiler device types:
+
+- `Sunberry Boiler 1F` is for single-phase boilers. It reports the one heater row as standard `measure_power`.
+- `Sunberry Boiler 3F` is for three-phase boilers. It reports standard `measure_power` as the total of L1, L2, and L3, and also exposes per-phase power through `measure_L1`, `measure_L2`, and `measure_L3`.
+
+Limitations:
+
+- The Boiler devices are telemetry-only in this version. They do not control boiler settings or schedules.
+- The app does not infer whether a physical installation is 1F or 3F during pairing. The user should add the device type that matches the Sunberry boiler configuration.
+- The Boiler page may not exist on installations where the installer did not enable the feature. Pairing the Boiler device will fail for those installations.
 ## Maintenance Notes
 
 - Parser behavior for `<30 W` and signed GRID values is covered by `test/sunberry-parsers.test.js`.
 - Smart Contact contact-state parsing is covered by `test/sunberry-parsers.test.js`.
+- Boiler value parsing is covered by `test/sunberry-parsers.test.js`.
+- Boiler Homey metadata is covered by `test/sunberry-boiler-device-model.test.js`.
 - Battery charged/discharged kWh estimation behavior is covered by `test/battery-energy-estimator.test.js`.
 - Home Consumption Energy exclusion behavior is covered by `test/sunberry-grid-energy-model.test.js`.
 - Smart Meter net import/export estimation behavior is covered by `test/energy-balance-estimator.test.js`.

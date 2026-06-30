@@ -156,7 +156,39 @@ test('parseBoilerValues handles missing temperature sensor and phase powers', ()
       L3: { percent: 0, power: 0 },
     },
     total_power: 250,
+    phase_count: 3,
     timestamp: '29.06.2026 20:43:20',
+  });
+});
+
+test('parseBoilerValues detects accented missing temperature sensor text', () => {
+  const html = `
+    <label>Teplotní čidlo:</label><label>Není připojeno teplotní čidlo.</label>
+    <label>Výkon spirály:</label><label>0 %</label><label>0 W</label>`;
+
+  const values = parseBoilerValues(html);
+
+  assert.equal(values.temperature_sensor_connected, false);
+  assert.equal(values.temperature, null);
+});
+
+test('parseBoilerValues extracts connected temperature and single-phase heater power', () => {
+  const html = `
+    <label>Teplotni cidlo:</label><label>41.2 deg C</label>
+    <label>Vykon spiraly:</label><label>25 %</label><label>500 W</label>
+    <label>30.06.2026 21:15:20</label>`;
+
+  assert.deepEqual(parseBoilerValues(html), {
+    temperature_sensor_connected: true,
+    temperature: 41.2,
+    phases: {
+      L1: { percent: 25, power: 500 },
+      L2: { percent: 0, power: 0 },
+      L3: { percent: 0, power: 0 },
+    },
+    total_power: 500,
+    phase_count: 1,
+    timestamp: '30.06.2026 21:15:20',
   });
 });
 

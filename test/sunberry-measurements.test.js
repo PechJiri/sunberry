@@ -7,6 +7,7 @@ const {
   normalizeBatteryMeasurements,
   normalizeSolarMeasurements,
   normalizeGridMeasurements,
+  normalizeBoilerMeasurements,
   normalizeSmartContactMeasurements,
 } = require('../lib/SunberryMeasurements');
 
@@ -92,5 +93,39 @@ test('normalizeSmartContactMeasurements maps contact state and timestamps', () =
     smart_contact_closed: false,
     smart_contact_last_closed_at: '30.06.2026 20:17:41',
     smart_contact_last_opened_at: '30.06.2026 20:21:25',
+  });
+});
+
+test('normalizeBoilerMeasurements maps single-phase boiler total power and connected temperature', () => {
+  assert.deepEqual(normalizeBoilerMeasurements({
+    temperature_sensor_connected: true,
+    temperature: 41.2,
+    phases: {
+      L1: { power: 500 },
+      L2: { power: 0 },
+      L3: { power: 0 },
+    },
+    total_power: 500,
+  }, { phaseCount: 1 }), {
+    measure_power: 500,
+    measure_temperature: 41.2,
+  });
+});
+
+test('normalizeBoilerMeasurements maps three-phase boiler total and phase powers', () => {
+  assert.deepEqual(normalizeBoilerMeasurements({
+    temperature_sensor_connected: false,
+    temperature: null,
+    phases: {
+      L1: { power: 100 },
+      L2: { power: 200 },
+      L3: { power: 300 },
+    },
+    total_power: 600,
+  }, { phaseCount: 3 }), {
+    measure_power: 600,
+    measure_L1: 100,
+    measure_L2: 200,
+    measure_L3: 300,
   });
 });

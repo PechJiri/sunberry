@@ -1,0 +1,30 @@
+{
+  "id": "sunberry_boiler_3f",
+  "name": {
+    "en": "Sunberry Boiler 3F"
+  },
+  "class": "sensor",
+  "capabilities": [
+    "measure_power",
+    "measure_temperature",
+    "measure_L1",
+    "measure_L2",
+    "measure_L3"
+  ],
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "pair"
+    }
+  ]
+}
