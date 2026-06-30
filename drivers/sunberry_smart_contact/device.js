@@ -78,7 +78,11 @@ class SunberrySmartContactDevice extends SunberryPollingDevice {
         }
 
         if (args.changedKeys.some(key => SMART_CONTACT_SETTING_KEYS.includes(key))) {
-            await this.controlApi.updateSettings(this.getSmartContactSettings(args.newSettings));
+            const settings = {
+                ...this.getSettings(),
+                ...args.newSettings
+            };
+            await this.controlApi.updateSettings(this.getSmartContactSettings(settings));
         }
 
         await super.onSettings(args);
