@@ -449,7 +449,6 @@
       "class": "sensor",
       "capabilities": [
         "onoff",
-        "alarm_contact",
         "smart_contact_closed",
         "smart_contact_last_closed_at",
         "smart_contact_last_opened_at"
@@ -529,14 +528,40 @@
         },
         {
           "id": "smart_contact_timer_mode",
-          "type": "text",
+          "type": "dropdown",
           "label": {
             "en": "Smart Contact timer mode"
           },
           "hint": {
-            "en": "Allowed values: battery, pv_overflow, combined, off."
+            "en": "Choose how Sunberry should decide when the timer may turn the contact on."
           },
-          "value": "battery"
+          "value": "battery",
+          "values": [
+            {
+              "id": "battery",
+              "label": {
+                "en": "Battery"
+              }
+            },
+            {
+              "id": "pv_overflow",
+              "label": {
+                "en": "PV overflow"
+              }
+            },
+            {
+              "id": "combined",
+              "label": {
+                "en": "Combined"
+              }
+            },
+            {
+              "id": "off",
+              "label": {
+                "en": "Off"
+              }
+            }
+          ]
         },
         {
           "id": "smart_contact_power",
@@ -588,25 +613,65 @@
         },
         {
           "id": "smart_contact_output",
-          "type": "text",
+          "type": "dropdown",
           "label": {
             "en": "Digital output"
           },
           "hint": {
-            "en": "Allowed values: DO1, DO2, DO3, DO4."
+            "en": "Choose the Sunberry digital output used for switching."
           },
-          "value": "DO1"
+          "value": "DO1",
+          "values": [
+            {
+              "id": "DO1",
+              "label": {
+                "en": "DO1"
+              }
+            },
+            {
+              "id": "DO2",
+              "label": {
+                "en": "DO2"
+              }
+            },
+            {
+              "id": "DO3",
+              "label": {
+                "en": "DO3"
+              }
+            },
+            {
+              "id": "DO4",
+              "label": {
+                "en": "DO4"
+              }
+            }
+          ]
         },
         {
           "id": "smart_contact_priority",
-          "type": "text",
+          "type": "dropdown",
           "label": {
-            "en": "Battery mode priority"
+            "en": "Default Battery Mode Priority"
           },
           "hint": {
-            "en": "Allowed values: soc or time."
+            "en": "Choose whether Battery mode prioritizes battery SOC or time."
           },
-          "value": "soc"
+          "value": "soc",
+          "values": [
+            {
+              "id": "soc",
+              "label": {
+                "en": "SOC"
+              }
+            },
+            {
+              "id": "time",
+              "label": {
+                "en": "Time"
+              }
+            }
+          ]
         }
       ]
     },
@@ -1002,17 +1067,17 @@
     "smart_contact_closed": {
       "type": "boolean",
       "title": {
-        "en": "Contact Closed"
+        "en": "Contact turned on"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "uiComponent": "sensor",
       "titleTrue": {
-        "en": "Closed"
+        "en": "YES"
       },
       "titleFalse": {
-        "en": "Open"
+        "en": "NO"
       },
       "icon": "/assets/images/contact.svg"
     },

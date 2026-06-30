@@ -89,7 +89,6 @@ test('normalizeSmartContactMeasurements maps contact state and timestamps', () =
     last_closed_at: '30.06.2026 20:17:41',
     last_opened_at: '30.06.2026 20:21:25',
   }), {
-    alarm_contact: true,
     smart_contact_closed: false,
     smart_contact_last_closed_at: '30.06.2026 20:17:41',
     smart_contact_last_opened_at: '30.06.2026 20:21:25',

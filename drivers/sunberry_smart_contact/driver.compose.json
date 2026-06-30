@@ -6,7 +6,6 @@
   "class": "sensor",
   "capabilities": [
     "onoff",
-    "alarm_contact",
     "smart_contact_closed",
     "smart_contact_last_closed_at",
     "smart_contact_last_opened_at"

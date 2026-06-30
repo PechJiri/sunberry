@@ -1,17 +1,17 @@
 {
   "type": "boolean",
   "title": {
-    "en": "Contact Closed"
+    "en": "Contact turned on"
   },
   "getable": true,
   "setable": false,
   "insights": true,
   "uiComponent": "sensor",
   "titleTrue": {
-    "en": "Closed"
+    "en": "YES"
   },
   "titleFalse": {
-    "en": "Open"
+    "en": "NO"
   },
   "icon": "/assets/images/contact.svg"
 }

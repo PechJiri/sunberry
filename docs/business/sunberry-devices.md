@@ -269,8 +269,8 @@ Business meaning:
 
 The Smart Contact device maps the optional Sunberry `Chytrý kontakt` feature. The Sunberry portal exposes the physical contact state as Czech labels:
 
-- `Sepnutý` means the contact is closed.
-- `Rozpojený` means the contact is open.
+- `Sepnutý` means the contact is turned on.
+- `Rozpojený` means the contact is turned off.
 
 The Homey app itself remains English. Czech labels are used only for parsing the Sunberry portal response.
 
@@ -278,10 +278,9 @@ Mapped values:
 
 | Sunberry value | Homey capability | Notes |
 | --- | --- | --- |
-| Stav kontaktu | `alarm_contact` | Standard Homey contact alarm. `true` means open, `false` means closed. |
-| Stav kontaktu | `smart_contact_closed` | Informational boolean state. `true` = closed, `false` = open. |
-| Čas posledního sepnutí | `smart_contact_last_closed_at` | Last close timestamp as reported by Sunberry. |
-| Čas posledního rozpojení | `smart_contact_last_opened_at` | Last open timestamp as reported by Sunberry. |
+| Stav kontaktu | `smart_contact_closed` | Custom boolean sensor shown as `Contact turned on`. `YES` = Sepnutý, `NO` = Rozpojený. |
+| Čas posledního sepnutí | `smart_contact_last_closed_at` | Last turn-on timestamp as reported by Sunberry. |
+| Čas posledního rozpojení | `smart_contact_last_opened_at` | Last turn-off timestamp as reported by Sunberry. |
 
 Control behavior:
 
@@ -298,13 +297,13 @@ The Sunberry settings form is intentionally sent separately from activation. Whe
 | --- | --- | --- |
 | Smart Contact timer start | `start_0` | Used only when turning the device on. Format `HH:MM`. |
 | Smart Contact timer stop | `stop_0` | Used only when turning the device on. Format `HH:MM`. |
-| Smart Contact timer mode | `mode_0` | Allowed values: `battery`, `pv_overflow`, `combined`, `off`. |
+| Smart Contact timer mode | `mode_0` | Dropdown. Allowed values: `battery`, `pv_overflow`, `combined`, `off`. |
 | Switched load power | `power` | Total switched load power in W. |
 | Overflow offset | `overflow_offset` | Optional W offset. Empty value is preserved as empty. |
 | Minimum battery SOC | `soc_min` | Percent, 0-100. |
 | Minimum closed time | `min_time` | Minutes. |
-| Digital output | `output` | Allowed values: `DO1`, `DO2`, `DO3`, `DO4`. |
-| Battery mode priority | `priority` | Allowed values: `soc`, `time`. |
+| Digital output | `output` | Dropdown. Allowed values: `DO1`, `DO2`, `DO3`, `DO4`. |
+| Default Battery Mode Priority | `priority` | Dropdown. Allowed values: `soc`, `time`. |
 
 Timer settings are also sent as a complete form payload. When the timer start, timer stop, or timer mode setting changes, the app posts the complete all-week timer payload to `/heat_pump/timers` without changing the active switch state. When the user turns `onoff` on, the app posts the same complete timer payload first and then calls `/heat_pump/active_change/True`.
 
@@ -324,7 +323,6 @@ Limitations:
 - The app does not currently mirror the Sunberry active switch from the settings page during polling. The `onoff` state reflects Homey control actions.
 - The app configures a single all-week timer when enabling the feature. It does not manage multiple timers or per-day timer schedules.
 - The Smart Contact page may not exist on installations where the installer did not enable the feature. Pairing the Smart Contact device will fail for those installations.
-
 ## Maintenance Notes
 
 - Parser behavior for `<30 W` and signed GRID values is covered by `test/sunberry-parsers.test.js`.
