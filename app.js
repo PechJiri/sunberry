@@ -2,6 +2,7 @@
 
 const Homey = require('homey');
 const Logger = require('./lib/Logger');
+const { notifySunberryV3MigrationOnce } = require('./lib/SunberryMigrationNotification');
 
 // Konstanty pro nastavení
 const APP_SETTINGS = {
@@ -91,6 +92,7 @@ class SunberryApp extends Homey.App {
         try {
             await this.initializeLogger();
             await this.initializeGlobalListeners();
+            await notifySunberryV3MigrationOnce(this.homey, this.logger);
             
             // Nastavení stavu aplikace
             this.setState('ready');
