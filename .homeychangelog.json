@@ -25,5 +25,8 @@
   },
   "3.2.0": {
     "en": "Added 1 phase/3 phase water heater control feature"
+  },
+  "3.2.1": {
+    "en": "Updated desc"
   }
 }
