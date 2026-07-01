@@ -153,3 +153,39 @@ test('split driver check stores resolved IPv4 address for sunberry.local pairing
     hostResolverPrivate.resolvedHostCache.clear();
   }
 });
+
+test('split driver check returns actionable mDNS error for sunberry.local lookup failures', async () => {
+  const originalLookup = require('node:dns').promises.lookup;
+  hostResolverPrivate.resolvedHostCache.clear();
+
+  require('node:dns').promises.lookup = async () => {
+    const error = new Error('getaddrinfo ENOTFOUND sunberry.local');
+    error.code = 'ENOTFOUND';
+    error.hostname = 'sunberry.local';
+    throw error;
+  };
+
+  try {
+    const Driver = createSunberryDriver({
+      type: 'grid',
+      name: 'Sunberry Home Consumption',
+      testMethod: 'getGridValues',
+    });
+    const driver = new Driver();
+    const handlers = {};
+    const session = {
+      setHandler(name, handler) {
+        handlers[name] = handler;
+      },
+    };
+
+    await driver.onPair(session);
+    const result = await handlers.check({ ip_address: 'sunberry.local' });
+
+    assert.equal(result.success, false);
+    assert.equal(result.error, 'Could not resolve sunberry.local. Try the actual Sunberry IP address.');
+  } finally {
+    require('node:dns').promises.lookup = originalLookup;
+    hostResolverPrivate.resolvedHostCache.clear();
+  }
+});

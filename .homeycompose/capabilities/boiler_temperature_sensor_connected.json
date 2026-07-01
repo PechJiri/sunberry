@@ -8,9 +8,9 @@
   "insights": true,
   "uiComponent": "sensor",
   "titleTrue": {
-    "en": "YES"
+    "en": "Yes"
   },
   "titleFalse": {
-    "en": "NO"
+    "en": "No"
   }
 }

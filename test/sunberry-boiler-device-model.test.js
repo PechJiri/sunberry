@@ -43,8 +43,8 @@ test('boiler temperature sensor connected capability is shown as YES/NO sensor',
   assert.equal(capability.getable, true);
   assert.equal(capability.setable, false);
   assert.equal(capability.uiComponent, 'sensor');
-  assert.equal(capability.titleTrue.en, 'YES');
-  assert.equal(capability.titleFalse.en, 'NO');
+  assert.equal(capability.titleTrue.en, 'Yes');
+  assert.equal(capability.titleFalse.en, 'No');
 });
 
 test('boiler drivers expose default timer settings with business hints', () => {

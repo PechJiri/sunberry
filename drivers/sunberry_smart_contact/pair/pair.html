@@ -7,8 +7,15 @@
             color-scheme: light;
         }
 
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
+            overflow-x: hidden;
         }
 
         .pair-shell {
@@ -60,6 +67,7 @@
             justify-content: center;
             gap: 0.5rem;
             width: 100%;
+            box-sizing: border-box;
             min-height: 2.75rem;
             padding: 0.75rem 1rem;
             border: 0;
@@ -248,7 +256,7 @@
             await Homey.done();
         } catch (error) {
             console.error('Connection check failed:', error);
-            setStatus('error', 'Connection failed', 'Try a different IP address or try again later.');
+            setStatus('error', 'Connection failed', error.message || 'Try a different IP address or try again later.');
         } finally {
             setChecking(false);
         }

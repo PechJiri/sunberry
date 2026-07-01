@@ -32,3 +32,19 @@ test('all pairing pages use compact status messages for checking, success, and r
     assert.match(html, /\.status-message[^{]*{[^}]*font-size:\s*0\.875rem/s, file);
   }
 });
+
+test('all pairing pages keep the check button inside the mobile viewport', () => {
+  for (const file of pairPages) {
+    const html = fs.readFileSync(file, 'utf8');
+    assert.match(html, /box-sizing:\s*border-box/, file);
+    assert.match(html, /overflow-x:\s*hidden/, file);
+    assert.match(html, /\.check-button[^{]*{[^}]*width:\s*100%[^}]*box-sizing:\s*border-box/s, file);
+  }
+});
+
+test('all pairing pages show the real connection error detail', () => {
+  for (const file of pairPages) {
+    const html = fs.readFileSync(file, 'utf8');
+    assert.match(html, /setStatus\('error',\s*'Connection failed',\s*error\.message\s*\|\|/, file);
+  }
+});
