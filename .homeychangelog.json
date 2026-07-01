@@ -22,5 +22,8 @@
   },
   "3.1.0": {
     "en": "Added optional Smart Contact and Boiler devices with controls, settings, telemetry, estimated boiler kWh, and clearer Homey Energy behavior. Updated documentation and metadata for the expanded split-device model."
+  },
+  "3.2.0": {
+    "en": "Added 1 phase/3 phase water heater control feature"
   }
 }
