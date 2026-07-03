@@ -31,5 +31,8 @@
   },
   "3.2.2": {
     "en": "Improved device recovery after temporary Sunberry endpoint outages so devices reconnect much faster once the endpoint becomes available again."
+  },
+  "3.2.3": {
+    "en": "app logo correction"
   }
 }
