@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const {
+  MAX_BACKOFF_POLLING_INTERVAL_MS,
   SELF_HEAL_POLLING_INTERVAL_MS,
   SunberryPollingDevice,
   applyCapabilityUpdates,
@@ -198,7 +199,7 @@ test('pollAndSetAvailability reuses an in-flight poll instead of starting anothe
   assert.equal(device.availableCount, 1);
 });
 
-test('getNextPollingDelayMs uses hourly self-healing interval after repeated failures', () => {
+test('getNextPollingDelayMs keeps retrying with capped backoff after repeated failures', () => {
   class TestPollingDevice extends SunberryPollingDevice {
     getSetting() {
       return 10;
@@ -217,5 +218,9 @@ test('getNextPollingDelayMs uses hourly self-healing interval after repeated fai
   assert.equal(device.getNextPollingDelayMs(), 40000);
 
   device.pollingFailureCount = 3;
+  assert.equal(device.getNextPollingDelayMs(), 80000);
+
+  device.pollingFailureCount = 4;
+  assert.equal(device.getNextPollingDelayMs(), MAX_BACKOFF_POLLING_INTERVAL_MS);
   assert.equal(device.getNextPollingDelayMs(), SELF_HEAL_POLLING_INTERVAL_MS);
 });

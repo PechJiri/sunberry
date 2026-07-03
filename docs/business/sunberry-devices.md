@@ -45,7 +45,7 @@ All HTTP reads go through a shared request queue keyed by the resolved base URL.
 
 The request queue also leaves a short gap between requests to the same physical Sunberry unit. This protects older Raspberry Pi/UniPi based installations from receiving several back-to-back HTTP requests at the exact same moment.
 
-Transient polling failures, such as a temporary HTTP 500 from one Sunberry page, do not immediately mark a Homey device as unavailable. A device shows a warning for the first failed polling attempts and is marked unavailable only after three consecutive failed polling attempts. After that point polling backs off to an hourly self-healing check. Any successful poll resets the failure counter, clears the warning when supported by the Homey runtime, marks the device available, and updates Homey's last-seen timestamp.
+Transient polling failures, such as a temporary HTTP 500 from one Sunberry page, do not immediately mark a Homey device as unavailable. A device shows a warning for the first failed polling attempts and is marked unavailable only after three consecutive failed polling attempts. After that point polling continues with capped exponential backoff so the device can recover promptly after a short Sunberry outage. Any successful poll resets the failure counter, clears the warning when supported by the Homey runtime, marks the device available, and updates Homey's last-seen timestamp.
 
 Polling uses a short startup jitter and skips overlapping runs for the same Homey device. If a previous polling cycle is still running, a new timer tick reuses that in-flight cycle instead of starting another HTTP read.
 
