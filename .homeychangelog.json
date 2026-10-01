@@ -34,8 +34,5 @@
   },
   "3.2.3": {
     "en": "app logo correction"
-  },
-  "3.2.4": {
-    "en": "Improved stability when Sunberry closes an HTTP connection by releasing unused response bodies and keeping request timeouts active through response handling."
   }
 }
